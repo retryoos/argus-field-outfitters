@@ -1,0 +1,10 @@
+/* Small brand tweaks on top of Bootstrap. */
+
+.navbar-brand {
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+footer p {
+    font-size: 0.9rem;
+}
