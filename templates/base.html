@@ -17,7 +17,10 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="mainnav">
-                <form class="d-flex ms-auto" method="get" action="{% url 'catalog:index' %}" role="search">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="{% url 'catalog:product_list' %}">Shop</a></li>
+                </ul>
+                <form class="d-flex" method="get" action="{% url 'catalog:index' %}" role="search">
                     <input class="form-control" type="search" name="q" placeholder="Search gear" aria-label="Search gear">
                 </form>
             </div>

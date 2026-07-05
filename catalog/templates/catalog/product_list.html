@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}{{ heading }}{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-4">{{ heading }}</h1>
+
+<div class="mb-4">
+    <a class="btn btn-sm btn-outline-secondary mb-1" href="{% url 'catalog:product_list' %}">All gear</a>
+    {% for category in categories %}
+        <a class="btn btn-sm btn-outline-secondary mb-1" href="{% url 'catalog:category_detail' category.slug %}">{{ category.name }}</a>
+    {% endfor %}
+</div>
+
+<div class="row g-3">
+    {% for product in products %}
+        <div class="col-6 col-md-4 col-lg-3">
+            <div class="card h-100">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                {% endif %}
+                <div class="card-body">
+                    <h2 class="h6 card-title">{{ product.name }}</h2>
+                    <p class="card-text text-muted mb-1">{{ product.brand }}</p>
+                    <p class="card-text fw-semibold">${{ product.price }}</p>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <p>No products to show yet.</p>
+    {% endfor %}
+</div>
+{% endblock %}
