@@ -20,7 +20,7 @@
                     <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
                 {% endif %}
                 <div class="card-body">
-                    <h2 class="h6 card-title">{{ product.name }}</h2>
+                    <h2 class="h6 card-title"><a class="stretched-link text-decoration-none" href="{% url 'catalog:product_detail' product.pk %}">{{ product.name }}</a></h2>
                     <p class="card-text text-muted mb-1">{{ product.brand }}</p>
                     <p class="card-text fw-semibold">${{ product.price }}</p>
                 </div>

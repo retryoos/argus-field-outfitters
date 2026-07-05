@@ -34,3 +34,20 @@ def subcategory_detail(request, slug):
         'products': products,
         'categories': Category.objects.all(),
     })
+
+
+def product_detail(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    same_subcategory = Product.objects.filter(
+        subcategory=product.subcategory, stock__gt=0
+    ).exclude(pk=product.pk).order_by('-created_at')
+    if same_subcategory.count() >= 4:
+        related = same_subcategory[:4]
+    else:
+        related = Product.objects.filter(
+            subcategory__category=product.subcategory.category, stock__gt=0
+        ).exclude(pk=product.pk).order_by('-created_at')[:4]
+    return render(request, 'catalog/product_detail.html', {
+        'product': product,
+        'related_products': related,
+    })

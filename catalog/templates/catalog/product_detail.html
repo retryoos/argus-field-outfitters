@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'catalog:product_list' %}">Gear</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'catalog:category_detail' product.subcategory.category.slug %}">{{ product.subcategory.category.name }}</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'catalog:subcategory_detail' product.subcategory.slug %}">{{ product.subcategory.name }}</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ product.name }}</li>
+    </ol>
+</nav>
+
+<div class="row g-4">
+    <div class="col-12 col-md-6">
+        {% if product.image %}
+            <img src="{{ product.image.url }}" class="img-fluid rounded" alt="{{ product.name }}">
+        {% else %}
+            <div class="bg-light border rounded d-flex align-items-center justify-content-center" style="height: 300px;">
+                <span class="text-muted">No image</span>
+            </div>
+        {% endif %}
+    </div>
+    <div class="col-12 col-md-6">
+        <h1 class="h3">{{ product.name }}</h1>
+        <p class="text-muted">{{ product.brand }}</p>
+        <p class="h4">${{ product.price }}</p>
+        <dl class="row mb-3">
+            <dt class="col-4">Category</dt>
+            <dd class="col-8">{{ product.subcategory.category.name }}</dd>
+            <dt class="col-4">Subcategory</dt>
+            <dd class="col-8">{{ product.subcategory.name }}</dd>
+            {% if product.color %}
+                <dt class="col-4">Color</dt>
+                <dd class="col-8">{{ product.color }}</dd>
+            {% endif %}
+            {% if product.size_variant %}
+                <dt class="col-4">Size</dt>
+                <dd class="col-8">{{ product.size_variant }}</dd>
+            {% endif %}
+            <dt class="col-4">Availability</dt>
+            <dd class="col-8">{% if product.stock > 0 %}In stock{% else %}Out of stock{% endif %}</dd>
+        </dl>
+        {% if product.description %}
+            <p>{{ product.description }}</p>
+        {% endif %}
+    </div>
+</div>
+
+{% if related_products %}
+    <section class="mt-5">
+        <h2 class="h5 mb-3">You might also like</h2>
+        <div class="row g-3">
+            {% for item in related_products %}
+                <div class="col-6 col-md-3">
+                    <div class="card h-100">
+                        {% if item.image %}
+                            <img src="{{ item.image.url }}" class="card-img-top" alt="{{ item.name }}">
+                        {% endif %}
+                        <div class="card-body">
+                            <h3 class="h6 card-title"><a class="stretched-link text-decoration-none" href="{% url 'catalog:product_detail' item.pk %}">{{ item.name }}</a></h3>
+                            <p class="card-text text-muted mb-0">{{ item.brand }}</p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+{% endif %}
+{% endblock %}
