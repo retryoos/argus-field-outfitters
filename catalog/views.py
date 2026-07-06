@@ -90,3 +90,23 @@ def cart_add(request, pk):
     cart = Cart(request)
     cart.add(product)
     return redirect('catalog:cart')
+
+
+@require_POST
+def cart_update(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    cart = Cart(request)
+    try:
+        quantity = int(request.POST.get('quantity', 1))
+    except (TypeError, ValueError):
+        quantity = 1
+    cart.set_quantity(product, quantity)
+    return redirect('catalog:cart')
+
+
+@require_POST
+def cart_remove(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    cart = Cart(request)
+    cart.remove(product)
+    return redirect('catalog:cart')
