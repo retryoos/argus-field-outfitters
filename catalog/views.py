@@ -1,6 +1,8 @@
 from django.db.models import Q
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.http import require_POST
 
+from .cart import Cart
 from .forms import ProductFilterForm
 from .models import Category, Product, Subcategory
 
@@ -75,3 +77,16 @@ def product_detail(request, pk):
         'product': product,
         'related_products': related,
     })
+
+
+def cart_view(request):
+    cart = Cart(request)
+    return render(request, 'catalog/cart.html', {'cart': cart})
+
+
+@require_POST
+def cart_add(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    cart = Cart(request)
+    cart.add(product)
+    return redirect('catalog:cart')

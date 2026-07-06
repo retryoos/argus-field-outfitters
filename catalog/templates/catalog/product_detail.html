@@ -42,6 +42,14 @@
             <dt class="col-4">Availability</dt>
             <dd class="col-8">{% if product.stock > 0 %}In stock{% else %}Out of stock{% endif %}</dd>
         </dl>
+        {% if product.stock > 0 %}
+            <form method="post" action="{% url 'catalog:cart_add' product.pk %}" class="mb-3">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-dark">Add to cart</button>
+            </form>
+        {% else %}
+            <button class="btn btn-dark mb-3" disabled>Out of stock</button>
+        {% endif %}
         {% if product.description %}
             <p>{{ product.description }}</p>
         {% endif %}
