@@ -20,9 +20,23 @@
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item"><a class="nav-link" href="{% url 'catalog:product_list' %}">Shop</a></li>
                 </ul>
-                <form class="d-flex" method="get" action="{% url 'catalog:product_list' %}" role="search">
+                <form class="d-flex me-3" method="get" action="{% url 'catalog:product_list' %}" role="search">
                     <input class="form-control" type="search" name="q" value="{{ request.GET.q }}" placeholder="Search gear" aria-label="Search gear">
                 </form>
+                <ul class="navbar-nav">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item"><span class="navbar-text me-2">{{ user.username }}</span></li>
+                        <li class="nav-item">
+                            <form method="post" action="{% url 'logout' %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-link nav-link">Sign out</button>
+                            </form>
+                        </li>
+                    {% else %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Sign in</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'accounts:register' %}">Register</a></li>
+                    {% endif %}
+                </ul>
             </div>
         </div>
     </nav>
