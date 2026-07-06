@@ -13,22 +13,63 @@
     {% endfor %}
 </div>
 
-<div class="row g-3">
-    {% for product in products %}
-        <div class="col-6 col-md-4 col-lg-3">
-            <div class="card h-100">
-                {% if product.image %}
-                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
-                {% endif %}
-                <div class="card-body">
-                    <h2 class="h6 card-title"><a class="stretched-link text-decoration-none" href="{% url 'catalog:product_detail' product.pk %}">{{ product.name }}</a></h2>
-                    <p class="card-text text-muted mb-1">{{ product.brand }}</p>
-                    <p class="card-text fw-semibold">${{ product.price }}</p>
+<div class="row">
+    {% if form %}
+        <div class="col-12 col-lg-3 mb-4">
+            <form method="get" class="border rounded p-3">
+                <h2 class="h6 mb-3">Filter</h2>
+                {% if query %}<input type="hidden" name="q" value="{{ query }}">{% endif %}
+                <div class="mb-2">
+                    <label class="form-label mb-1">Price</label>
+                    <div class="d-flex gap-2">
+                        {{ form.min_price }}
+                        {{ form.max_price }}
+                    </div>
                 </div>
-            </div>
+                <div class="mb-2">
+                    <label class="form-label mb-1" for="{{ form.brand.id_for_label }}">Brand</label>
+                    {{ form.brand }}
+                </div>
+                <div class="mb-2">
+                    <label class="form-label mb-1" for="{{ form.color.id_for_label }}">Color</label>
+                    {{ form.color }}
+                </div>
+                <div class="mb-2">
+                    <label class="form-label mb-1" for="{{ form.size.id_for_label }}">Size</label>
+                    {{ form.size }}
+                </div>
+                <div class="mb-2">
+                    <label class="form-label mb-1" for="{{ form.subcategory.id_for_label }}">Subcategory</label>
+                    {{ form.subcategory }}
+                </div>
+                <div class="form-check mb-3">
+                    {{ form.in_stock }}
+                    <label class="form-check-label" for="{{ form.in_stock.id_for_label }}">In stock only</label>
+                </div>
+                <button type="submit" class="btn btn-dark btn-sm w-100 mb-2">Apply</button>
+                <a href="{% url 'catalog:product_list' %}" class="btn btn-outline-secondary btn-sm w-100">Clear</a>
+            </form>
         </div>
-    {% empty %}
-        <p>No products to show yet.</p>
-    {% endfor %}
+    {% endif %}
+    <div class="{% if form %}col-12 col-lg-9{% else %}col-12{% endif %}">
+        <div class="row g-3">
+            {% for product in products %}
+                <div class="col-6 col-md-4">
+                    <div class="card h-100">
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                        {% endif %}
+                        <div class="card-body">
+                            <h2 class="h6 card-title"><a class="stretched-link text-decoration-none" href="{% url 'catalog:product_detail' product.pk %}">{{ product.name }}</a></h2>
+                            <p class="card-text text-muted mb-1">{{ product.brand }}</p>
+                            <p class="card-text fw-semibold">${{ product.price }}</p>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <p>No products match your search.</p>
+            {% endfor %}
+        </div>
+    </div>
 </div>
 {% endblock %}

@@ -1,6 +1,7 @@
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
 
+from .forms import ProductFilterForm
 from .models import Category, Product, Subcategory
 
 
@@ -13,10 +14,28 @@ def product_list(request):
     query = request.GET.get('q', '').strip()
     if query:
         products = products.filter(Q(name__icontains=query) | Q(brand__icontains=query))
+    form = ProductFilterForm(request.GET or None)
+    if form.is_valid():
+        data = form.cleaned_data
+        if data['min_price'] is not None:
+            products = products.filter(price__gte=data['min_price'])
+        if data['max_price'] is not None:
+            products = products.filter(price__lte=data['max_price'])
+        if data['brand']:
+            products = products.filter(brand=data['brand'])
+        if data['color']:
+            products = products.filter(color=data['color'])
+        if data['size']:
+            products = products.filter(size_variant=data['size'])
+        if data['subcategory']:
+            products = products.filter(subcategory=data['subcategory'])
+        if data['in_stock']:
+            products = products.filter(stock__gt=0)
     return render(request, 'catalog/product_list.html', {
         'heading': 'Search results' if query else 'All gear',
         'products': products,
         'categories': Category.objects.all(),
+        'form': form,
         'query': query,
     })
 
