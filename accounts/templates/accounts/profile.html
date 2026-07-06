@@ -18,4 +18,5 @@
     <dt class="col-sm-3">Shipping address</dt>
     <dd class="col-sm-9">{{ profile.shipping_address|default:"Not set"|linebreaksbr }}</dd>
 </dl>
+<a href="{% url 'accounts:profile_edit' %}" class="btn btn-dark">Edit profile</a>
 {% endblock %}

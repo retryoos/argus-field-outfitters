@@ -130,7 +130,7 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'
 CRISPY_TEMPLATE_PACK = 'bootstrap5'
 
 # Where login and logout send the user.
-LOGIN_REDIRECT_URL = 'catalog:index'
+LOGIN_REDIRECT_URL = 'accounts:dashboard'
 LOGOUT_REDIRECT_URL = 'catalog:index'
 
 # Default primary key field type

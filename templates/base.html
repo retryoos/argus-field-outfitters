@@ -25,6 +25,7 @@
                 </form>
                 <ul class="navbar-nav">
                     {% if user.is_authenticated %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'accounts:dashboard' %}">Dashboard</a></li>
                         <li class="nav-item"><a class="nav-link" href="{% url 'accounts:profile' %}">{{ user.username }}</a></li>
                         <li class="nav-item">
                             <form method="post" action="{% url 'logout' %}" class="d-inline">
