@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Your profile{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-4">Your profile</h1>
+<dl class="row">
+    <dt class="col-sm-3">Username</dt>
+    <dd class="col-sm-9">{{ user.username }}</dd>
+    <dt class="col-sm-3">Name</dt>
+    <dd class="col-sm-9">{{ user.get_full_name|default:"Not set" }}</dd>
+    <dt class="col-sm-3">Email</dt>
+    <dd class="col-sm-9">{{ user.email|default:"Not set" }}</dd>
+    <dt class="col-sm-3">Role</dt>
+    <dd class="col-sm-9">{{ profile.get_role_display }}</dd>
+    <dt class="col-sm-3">Phone</dt>
+    <dd class="col-sm-9">{{ profile.phone|default:"Not set" }}</dd>
+    <dt class="col-sm-3">Shipping address</dt>
+    <dd class="col-sm-9">{{ profile.shipping_address|default:"Not set"|linebreaksbr }}</dd>
+</dl>
+{% endblock %}
