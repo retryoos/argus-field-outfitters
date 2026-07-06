@@ -3,7 +3,8 @@
 {% block title %}{{ heading }}{% endblock %}
 
 {% block content %}
-<h1 class="h3 mb-4">{{ heading }}</h1>
+<h1 class="h3 mb-3">{{ heading }}</h1>
+{% if query %}<p class="text-muted">Showing results for {{ query }}.</p>{% endif %}
 
 <div class="mb-4">
     <a class="btn btn-sm btn-outline-secondary mb-1" href="{% url 'catalog:product_list' %}">All gear</a>

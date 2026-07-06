@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
 
 from .models import Category, Product, Subcategory
@@ -9,10 +10,14 @@ def index(request):
 
 def product_list(request):
     products = Product.objects.all()
+    query = request.GET.get('q', '').strip()
+    if query:
+        products = products.filter(Q(name__icontains=query) | Q(brand__icontains=query))
     return render(request, 'catalog/product_list.html', {
-        'heading': 'All gear',
+        'heading': 'Search results' if query else 'All gear',
         'products': products,
         'categories': Category.objects.all(),
+        'query': query,
     })
 
 
