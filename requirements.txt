@@ -6,6 +6,7 @@ Django==5.2.15
 django-crispy-forms==2.6
 idna==3.18
 pillow==12.3.0
+python-dotenv==1.2.2
 requests==2.34.2
 sqlparse==0.5.5
 stripe==15.3.0
