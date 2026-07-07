@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 
-from .models import Category, Order, OrderItem, Product, Rating, Subcategory
+from .models import Category, Order, OrderItem, Product, Rating, Subcategory, WishlistItem
 
 
 @admin.register(Category)
@@ -50,4 +50,10 @@ class OrderAdmin(admin.ModelAdmin):
 class RatingAdmin(admin.ModelAdmin):
     list_display = ['product', 'user', 'stars', 'created_at']
     list_filter = ['stars']
+    search_fields = ['product__name', 'user__username']
+
+
+@admin.register(WishlistItem)
+class WishlistItemAdmin(admin.ModelAdmin):
+    list_display = ['product', 'user', 'added_at']
     search_fields = ['product__name', 'user__username']

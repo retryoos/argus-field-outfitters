@@ -19,4 +19,6 @@ urlpatterns = [
     path('checkout/cancel/', views.checkout_cancel, name='checkout_cancel'),
     path('order/<int:pk>/', views.order_confirmation, name='order_confirmation'),
     path('rate/<int:pk>/', views.rate, name='rate'),
+    path('wishlist/', views.wishlist, name='wishlist'),
+    path('wishlist/toggle/<int:pk>/', views.wishlist_toggle, name='wishlist_toggle'),
 ]

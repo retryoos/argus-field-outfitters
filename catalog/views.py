@@ -10,7 +10,7 @@ from django.views.decorators.http import require_POST
 
 from .cart import Cart
 from .forms import CheckoutForm, ProductFilterForm, RatingForm
-from .models import Category, Order, OrderItem, Product, Rating, Subcategory
+from .models import Category, Order, OrderItem, Product, Rating, Subcategory, WishlistItem
 
 
 def index(request):
@@ -81,12 +81,17 @@ def product_detail(request, pk):
         ).exclude(pk=product.pk).order_by('-created_at')[:4]
     reviews = product.ratings.select_related('user')
     average = product.ratings.aggregate(average=Avg('stars'))['average']
+    in_wishlist = (
+        request.user.is_authenticated
+        and WishlistItem.objects.filter(user=request.user, product=product).exists()
+    )
     return render(request, 'catalog/product_detail.html', {
         'product': product,
         'related_products': related,
         'reviews': reviews,
         'average': round(average, 1) if average is not None else 0,
         'rating_count': reviews.count(),
+        'in_wishlist': in_wishlist,
     })
 
 
@@ -258,3 +263,19 @@ def rate(request, pk):
         'average': round(average, 1) if average is not None else 0,
         'count': product.ratings.count(),
     })
+
+
+@login_required
+def wishlist(request):
+    items = request.user.wishlist_items.select_related('product')
+    return render(request, 'catalog/wishlist.html', {'items': items})
+
+
+@login_required
+@require_POST
+def wishlist_toggle(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    item, created = WishlistItem.objects.get_or_create(user=request.user, product=product)
+    if not created:
+        item.delete()
+    return redirect(request.POST.get('next') or 'catalog:wishlist')
