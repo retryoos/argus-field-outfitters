@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 
-from .models import Category, Subcategory, Product
+from .models import Category, Order, OrderItem, Product, Subcategory
 
 
 @admin.register(Category)
@@ -31,3 +31,16 @@ class ProductAdmin(admin.ModelAdmin):
             return format_html('<img src="{}" style="height: 40px;">', product.image.url)
         return 'No image'
     thumbnail.short_description = 'Image'
+
+
+class OrderItemInline(admin.TabularInline):
+    model = OrderItem
+    extra = 0
+
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ['reference_number', 'user', 'status', 'total', 'created_at']
+    list_filter = ['status']
+    search_fields = ['reference_number', 'user__username']
+    inlines = [OrderItemInline]

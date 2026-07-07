@@ -37,3 +37,12 @@ class ProductFilterForm(forms.Form):
                   .distinct()
                   .order_by(field_name))
         return [('', 'Any')] + [(value, value) for value in values]
+
+
+class CheckoutForm(forms.Form):
+    ship_full_name = forms.CharField(max_length=200, label='Full name')
+    ship_address = forms.CharField(widget=forms.Textarea(attrs={'rows': 2}), label='Address')
+    ship_city = forms.CharField(max_length=100, label='City')
+    ship_postcode = forms.CharField(max_length=20, label='Postcode')
+    ship_country = forms.CharField(max_length=100, label='Country')
+    billing_same = forms.BooleanField(required=False, initial=True, label='Billing address is the same as shipping')

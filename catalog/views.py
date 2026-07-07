@@ -1,10 +1,12 @@
+from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from .cart import Cart
-from .forms import ProductFilterForm
-from .models import Category, Product, Subcategory
+from .forms import CheckoutForm, ProductFilterForm
+from .models import Category, Order, OrderItem, Product, Subcategory
 
 
 def index(request):
@@ -110,3 +112,66 @@ def cart_remove(request, pk):
     cart = Cart(request)
     cart.remove(product)
     return redirect('catalog:cart')
+
+
+def _checkout_initial(user):
+    initial = {'ship_full_name': user.get_full_name()}
+    if hasattr(user, 'profile'):
+        initial['ship_address'] = user.profile.shipping_address
+    return initial
+
+
+def _create_order(request, cart, data):
+    order = Order.objects.create(
+        user=request.user,
+        ship_full_name=data['ship_full_name'],
+        ship_address=data['ship_address'],
+        ship_city=data['ship_city'],
+        ship_postcode=data['ship_postcode'],
+        ship_country=data['ship_country'],
+        billing_same=data['billing_same'],
+        total=cart.total_price(),
+    )
+    order.reference_number = f'AFO-{order.pk:06d}'
+    order.save()
+    for item in cart:
+        OrderItem.objects.create(
+            order=order,
+            product=item['product'],
+            quantity=item['quantity'],
+            unit_price=item['product'].price,
+        )
+    return order
+
+
+def _finalize_order(order):
+    order.status = Order.PAID
+    order.paid_at = timezone.now()
+    order.save()
+    for item in order.items.all():
+        product = item.product
+        product.stock = max(product.stock - item.quantity, 0)
+        product.save()
+
+
+@login_required
+def checkout(request):
+    cart = Cart(request)
+    if len(cart) == 0:
+        return redirect('catalog:cart')
+    if request.method == 'POST':
+        form = CheckoutForm(request.POST)
+        if form.is_valid():
+            order = _create_order(request, cart, form.cleaned_data)
+            _finalize_order(order)
+            cart.clear()
+            return redirect('catalog:order_confirmation', pk=order.pk)
+    else:
+        form = CheckoutForm(initial=_checkout_initial(request.user))
+    return render(request, 'catalog/checkout.html', {'form': form, 'cart': cart})
+
+
+@login_required
+def order_confirmation(request, pk):
+    order = get_object_or_404(Order, pk=pk, user=request.user)
+    return render(request, 'catalog/order_confirmation.html', {'order': order})

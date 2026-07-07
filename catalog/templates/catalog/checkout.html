@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Checkout{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-4">Checkout</h1>
+<div class="row g-4">
+    <div class="col-12 col-lg-7">
+        <form method="post">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <button type="submit" class="btn btn-dark">Place order</button>
+            <a href="{% url 'catalog:cart' %}" class="btn btn-outline-secondary">Back to cart</a>
+        </form>
+    </div>
+    <div class="col-12 col-lg-5">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="h6 mb-3">Order summary</h2>
+                <ul class="list-unstyled mb-2">
+                    {% for item in cart %}
+                        <li class="d-flex justify-content-between">
+                            <span>{{ item.quantity }} x {{ item.product.name }}</span>
+                            <span>${{ item.total }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <div class="d-flex justify-content-between fw-semibold border-top pt-2">
+                    <span>Total</span>
+                    <span>${{ cart.total_price }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

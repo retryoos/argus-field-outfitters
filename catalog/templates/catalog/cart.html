@@ -48,7 +48,10 @@
             </tfoot>
         </table>
     </div>
-    <a href="{% url 'catalog:product_list' %}" class="btn btn-outline-secondary">Keep shopping</a>
+    <div class="d-flex gap-2">
+        <a href="{% url 'catalog:product_list' %}" class="btn btn-outline-secondary">Keep shopping</a>
+        <a href="{% url 'catalog:checkout' %}" class="btn btn-dark">Checkout</a>
+    </div>
 {% else %}
     <p>Your cart is empty. <a href="{% url 'catalog:product_list' %}">Browse the gear</a>.</p>
 {% endif %}
