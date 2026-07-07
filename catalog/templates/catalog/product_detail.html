@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}{{ product.name }}{% endblock %}
 
@@ -56,6 +57,38 @@
     </div>
 </div>
 
+<section class="mt-5" id="rating-section" data-rate-url="{% url 'catalog:rate' product.pk %}">
+    <h2 class="h5">Ratings</h2>
+    <p class="mb-2">Average <span id="rating-average">{{ average }}</span> from <span id="rating-count">{{ rating_count }}</span> ratings.</p>
+    {% if user.is_authenticated %}
+        {% csrf_token %}
+        <div class="mb-2">
+            <span class="me-2">Your rating:</span>
+            {% for star in "12345" %}
+                <button type="button" class="btn btn-link p-0 fs-4 text-warning star" data-value="{{ forloop.counter }}"><i class="bi bi-star"></i></button>
+            {% endfor %}
+        </div>
+        <textarea id="rating-comment" class="form-control mb-2" rows="2" placeholder="Add a comment (optional)"></textarea>
+        <button type="button" id="rating-submit" class="btn btn-sm btn-dark">Submit review</button>
+        <span id="rating-message" class="ms-2 text-success"></span>
+    {% else %}
+        <p class="text-muted"><a href="{% url 'login' %}">Sign in</a> to rate this item.</p>
+    {% endif %}
+
+    {% if reviews %}
+        <h3 class="h6 mt-4">Community reviews</h3>
+        <ul class="list-unstyled">
+            {% for review in reviews %}
+                <li class="border-top py-2">
+                    <strong>{{ review.user.username }}</strong> rated {{ review.stars }} out of 5
+                    <span class="text-muted small">{{ review.created_at|date:"d M Y" }}</span>
+                    {% if review.comment %}<div>{{ review.comment }}</div>{% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</section>
+
 {% if related_products %}
     <section class="mt-5">
         <h2 class="h5 mb-3">You might also like</h2>
@@ -76,4 +109,8 @@
         </div>
     </section>
 {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'catalog/ratings.js' %}"></script>
 {% endblock %}

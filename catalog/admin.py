@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 
-from .models import Category, Order, OrderItem, Product, Subcategory
+from .models import Category, Order, OrderItem, Product, Rating, Subcategory
 
 
 @admin.register(Category)
@@ -44,3 +44,10 @@ class OrderAdmin(admin.ModelAdmin):
     list_filter = ['status']
     search_fields = ['reference_number', 'user__username']
     inlines = [OrderItemInline]
+
+
+@admin.register(Rating)
+class RatingAdmin(admin.ModelAdmin):
+    list_display = ['product', 'user', 'stars', 'created_at']
+    list_filter = ['stars']
+    search_fields = ['product__name', 'user__username']

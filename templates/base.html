@@ -7,6 +7,7 @@
     <title>{% block title %}Argus Field Outfitters{% endblock %}</title>
     <meta name="description" content="Tactical and outdoor field gear from Argus Field Outfitters.">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="{% static 'css/site.css' %}" rel="stylesheet">
 </head>
 <body class="d-flex flex-column min-vh-100">
@@ -55,6 +56,8 @@
         </div>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

@@ -1,15 +1,16 @@
 import stripe
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q
+from django.db.models import Avg, Q
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from .cart import Cart
-from .forms import CheckoutForm, ProductFilterForm
-from .models import Category, Order, OrderItem, Product, Subcategory
+from .forms import CheckoutForm, ProductFilterForm, RatingForm
+from .models import Category, Order, OrderItem, Product, Rating, Subcategory
 
 
 def index(request):
@@ -78,9 +79,14 @@ def product_detail(request, pk):
         related = Product.objects.filter(
             subcategory__category=product.subcategory.category, stock__gt=0
         ).exclude(pk=product.pk).order_by('-created_at')[:4]
+    reviews = product.ratings.select_related('user')
+    average = product.ratings.aggregate(average=Avg('stars'))['average']
     return render(request, 'catalog/product_detail.html', {
         'product': product,
         'related_products': related,
+        'reviews': reviews,
+        'average': round(average, 1) if average is not None else 0,
+        'rating_count': reviews.count(),
     })
 
 
@@ -230,3 +236,25 @@ def checkout_cancel(request):
 def order_confirmation(request, pk):
     order = get_object_or_404(Order, pk=pk, user=request.user)
     return render(request, 'catalog/order_confirmation.html', {'order': order})
+
+
+@login_required
+@require_POST
+def rate(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    form = RatingForm(request.POST)
+    if not form.is_valid():
+        return JsonResponse({'error': 'invalid rating'}, status=400)
+    Rating.objects.update_or_create(
+        user=request.user,
+        product=product,
+        defaults={
+            'stars': form.cleaned_data['stars'],
+            'comment': form.cleaned_data['comment'],
+        },
+    )
+    average = product.ratings.aggregate(average=Avg('stars'))['average']
+    return JsonResponse({
+        'average': round(average, 1) if average is not None else 0,
+        'count': product.ratings.count(),
+    })
