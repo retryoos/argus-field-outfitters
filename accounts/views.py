@@ -46,4 +46,8 @@ def profile_edit(request):
 @login_required
 def dashboard(request):
     profile, created = Profile.objects.get_or_create(user=request.user)
-    return render(request, 'accounts/dashboard.html', {'profile': profile})
+    orders = request.user.orders.all()
+    return render(request, 'accounts/dashboard.html', {
+        'profile': profile,
+        'orders': orders,
+    })

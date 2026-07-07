@@ -21,9 +21,39 @@
         <div class="card h-100">
             <div class="card-body">
                 <h2 class="h6">Recent activity</h2>
-                <p class="card-text text-muted">Your recently viewed items, ratings, wishlist, and orders will appear here.</p>
+                <p class="card-text text-muted">Your recently viewed items, ratings, and wishlist will appear here.</p>
             </div>
         </div>
     </div>
 </div>
+
+<h2 class="h5 mt-5 mb-3">Your orders</h2>
+{% if orders %}
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Reference</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Total</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                    <tr>
+                        <td>{{ order.reference_number }}</td>
+                        <td>{{ order.created_at|date:"d M Y" }}</td>
+                        <td>{{ order.get_status_display }}</td>
+                        <td>${{ order.total }}</td>
+                        <td><a href="{% url 'catalog:order_confirmation' order.pk %}" class="btn btn-sm btn-outline-secondary">View</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <p class="text-muted">You have not placed any orders yet.</p>
+{% endif %}
 {% endblock %}
