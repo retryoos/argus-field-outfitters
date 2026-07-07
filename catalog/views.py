@@ -10,7 +10,7 @@ from django.views.decorators.http import require_POST
 
 from .cart import Cart
 from .forms import CheckoutForm, ProductFilterForm, RatingForm
-from .models import Category, Order, OrderItem, Product, Rating, Subcategory, WishlistItem
+from .models import Category, Order, OrderItem, Product, Rating, RecentlyViewed, Subcategory, WishlistItem
 
 
 def index(request):
@@ -70,6 +70,8 @@ def subcategory_detail(request, slug):
 
 def product_detail(request, pk):
     product = get_object_or_404(Product, pk=pk)
+    if request.user.is_authenticated:
+        RecentlyViewed.objects.update_or_create(user=request.user, product=product)
     same_subcategory = Product.objects.filter(
         subcategory=product.subcategory, stock__gt=0
     ).exclude(pk=product.pk).order_by('-created_at')

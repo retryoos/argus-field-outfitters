@@ -6,28 +6,67 @@
 <h1 class="h3 mb-1">Welcome, {{ user.username }}</h1>
 <p class="text-muted mb-4">Signed in as {{ profile.get_role_display }}.</p>
 
-<div class="row g-3">
+<div class="mb-4">
+    <a href="{% url 'accounts:profile' %}" class="btn btn-sm btn-dark">View profile</a>
+    <a href="{% url 'accounts:profile_edit' %}" class="btn btn-sm btn-outline-secondary">Edit profile</a>
+    <a href="{% url 'catalog:wishlist' %}" class="btn btn-sm btn-outline-secondary">Wishlist</a>
+</div>
+
+{% if recommendations %}
+    <h2 class="h5 mb-3">Recommended for you</h2>
+    <div class="row g-3 mb-4">
+        {% for product in recommendations %}
+            <div class="col-6 col-md-3">
+                <div class="card h-100">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <h3 class="h6 card-title"><a class="stretched-link text-decoration-none" href="{% url 'catalog:product_detail' product.pk %}">{{ product.name }}</a></h3>
+                        <p class="card-text text-muted mb-0">{{ product.brand }}</p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<div class="row g-3 mb-4">
     <div class="col-12 col-md-6">
         <div class="card h-100">
             <div class="card-body">
-                <h2 class="h6">Your profile</h2>
-                <p class="card-text">Review and update your details.</p>
-                <a href="{% url 'accounts:profile' %}" class="btn btn-sm btn-dark">View profile</a>
-                <a href="{% url 'accounts:profile_edit' %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                <h2 class="h6">Recently viewed</h2>
+                {% if recently_viewed %}
+                    <ul class="list-unstyled mb-0">
+                        {% for entry in recently_viewed %}
+                            <li><a href="{% url 'catalog:product_detail' entry.product.pk %}">{{ entry.product.name }}</a></li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-muted mb-0">Nothing viewed yet.</p>
+                {% endif %}
             </div>
         </div>
     </div>
     <div class="col-12 col-md-6">
         <div class="card h-100">
             <div class="card-body">
-                <h2 class="h6">Recent activity</h2>
-                <p class="card-text text-muted">Your recently viewed items, ratings, and wishlist will appear here.</p>
+                <h2 class="h6">Your ratings</h2>
+                {% if ratings %}
+                    <ul class="list-unstyled mb-0">
+                        {% for rating in ratings %}
+                            <li><a href="{% url 'catalog:product_detail' rating.product.pk %}">{{ rating.product.name }}</a>: {{ rating.stars }} out of 5</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-muted mb-0">You have not rated anything yet.</p>
+                {% endif %}
             </div>
         </div>
     </div>
 </div>
 
-<h2 class="h5 mt-5 mb-3">Your orders</h2>
+<h2 class="h5 mb-3">Your orders</h2>
 {% if orders %}
     <div class="table-responsive">
         <table class="table align-middle">

@@ -2,6 +2,8 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 
+from catalog.recommendations import recommendations_for_user
+
 from .forms import ProfileForm, RegisterForm, UserForm
 from .models import Profile
 
@@ -46,8 +48,10 @@ def profile_edit(request):
 @login_required
 def dashboard(request):
     profile, created = Profile.objects.get_or_create(user=request.user)
-    orders = request.user.orders.all()
     return render(request, 'accounts/dashboard.html', {
         'profile': profile,
-        'orders': orders,
+        'orders': request.user.orders.all(),
+        'recently_viewed': request.user.recently_viewed.select_related('product')[:6],
+        'ratings': request.user.ratings.select_related('product')[:6],
+        'recommendations': recommendations_for_user(request.user),
     })
