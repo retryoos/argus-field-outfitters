@@ -30,6 +30,9 @@
                     <span>Total</span>
                     <span>${{ cart.total_price }}</span>
                 </div>
+                {% if stripe_enabled %}
+                    <p class="small text-muted mt-3 mb-0">Payment runs in Stripe test mode. Use card 4242 4242 4242 4242 with any future date and any CVC.</p>
+                {% endif %}
             </div>
         </div>
     </div>

@@ -1,6 +1,9 @@
+import stripe
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
@@ -154,6 +157,34 @@ def _finalize_order(order):
         product.save()
 
 
+def _stripe_enabled():
+    return bool(settings.STRIPE_SECRET_KEY)
+
+
+def _start_stripe_session(request, order):
+    stripe.api_key = settings.STRIPE_SECRET_KEY
+    line_items = []
+    for item in order.items.all():
+        line_items.append({
+            'price_data': {
+                'currency': 'usd',
+                'product_data': {'name': item.product.name},
+                'unit_amount': int(item.unit_price * 100),
+            },
+            'quantity': item.quantity,
+        })
+    success_url = request.build_absolute_uri(reverse('catalog:checkout_success'))
+    session = stripe.checkout.Session.create(
+        mode='payment',
+        line_items=line_items,
+        success_url=success_url + '?session_id={CHECKOUT_SESSION_ID}',
+        cancel_url=request.build_absolute_uri(reverse('catalog:checkout_cancel')),
+    )
+    order.stripe_session_id = session.id
+    order.save()
+    return session.url
+
+
 @login_required
 def checkout(request):
     cart = Cart(request)
@@ -163,12 +194,36 @@ def checkout(request):
         form = CheckoutForm(request.POST)
         if form.is_valid():
             order = _create_order(request, cart, form.cleaned_data)
+            if _stripe_enabled():
+                return redirect(_start_stripe_session(request, order))
             _finalize_order(order)
             cart.clear()
             return redirect('catalog:order_confirmation', pk=order.pk)
     else:
         form = CheckoutForm(initial=_checkout_initial(request.user))
-    return render(request, 'catalog/checkout.html', {'form': form, 'cart': cart})
+    return render(request, 'catalog/checkout.html', {
+        'form': form,
+        'cart': cart,
+        'stripe_enabled': _stripe_enabled(),
+    })
+
+
+@login_required
+def checkout_success(request):
+    session_id = request.GET.get('session_id')
+    order = get_object_or_404(Order, stripe_session_id=session_id, user=request.user)
+    if order.status != Order.PAID:
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        session = stripe.checkout.Session.retrieve(session_id)
+        if session.payment_status == 'paid':
+            _finalize_order(order)
+            Cart(request).clear()
+    return redirect('catalog:order_confirmation', pk=order.pk)
+
+
+@login_required
+def checkout_cancel(request):
+    return redirect('catalog:cart')
 
 
 @login_required
