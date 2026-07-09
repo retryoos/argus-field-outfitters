@@ -8,10 +8,10 @@ Render. Pick one of the two guides below.
 
 Set these on the host. Never commit real values.
 
-- SECRET_KEY: a fresh Django secret key.
-- DEBUG: False in production.
-- ALLOWED_HOSTS: your domain, for example argus.example.com.
-- STRIPE_SECRET_KEY and STRIPE_PUBLISHABLE_KEY: your Stripe test mode keys.
+- SECRET_KEY holds a fresh Django secret key.
+- DEBUG must be False in production.
+- ALLOWED_HOSTS lists your domain, for example argus.example.com.
+- STRIPE_SECRET_KEY and STRIPE_PUBLISHABLE_KEY hold your Stripe test mode keys.
 
 ## Option A, Render
 
@@ -20,7 +20,7 @@ Set these on the host. Never commit real values.
 3. Set the build command to bash build.sh and the start command to gunicorn argus.wsgi.
 4. Add the environment variables listed above.
 5. Deploy. The build runs collectstatic and migrate.
-6. Open a shell on the service and run the one time data steps:
+6. Open a shell on the service and run the one time data steps.
 
        python manage.py loaddata sample_data
        python manage.py createsuperuser
@@ -30,7 +30,7 @@ Set these on the host. Never commit real values.
 ## Option B, PythonAnywhere
 
 1. Push the repository to GitHub, then clone it on PythonAnywhere.
-2. Create a virtual environment and install the requirements:
+2. Create a virtual environment and install the requirements.
 
        python3.12 -m venv venv
        source venv/bin/activate
@@ -39,7 +39,7 @@ Set these on the host. Never commit real values.
 3. Create a Web app that points at the argus project, and set the virtual environment path.
 4. In the WSGI configuration file, load the environment variables and point at argus.wsgi.
 5. Set the environment variables listed above.
-6. Run the one time steps:
+6. Run the one time steps.
 
        python manage.py migrate
        python manage.py collectstatic --no-input

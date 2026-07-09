@@ -14,11 +14,11 @@ project for ITC 4214 Internet Programming. The site is built with Django and Boo
 
 ## Roles
 
-- Guest: browse, search, and add to a session cart. Prompted to sign in at checkout.
-- Customer: the default on signup. Rates, reviews, wishlists, checks out, and has order history.
-- Employee: manages the catalogue and views orders from the backoffice.
-- Owner: everything an Employee can do, plus managing users and their roles.
-- Root: the Django superuser, the only role that uses the built in Django admin.
+- A guest can browse, search and fill a session cart, and is asked to sign in at checkout.
+- A customer is the default role on signup. Customers rate and review items, keep a wishlist, check out and see their order history.
+- An employee manages the catalogue and views orders from the backoffice.
+- An owner does everything an employee does and also manages users and their roles.
+- Root is the Django superuser and the only account that uses the built in Django admin.
 
 ## Technology
 
@@ -27,9 +27,9 @@ WhiteNoise for static files, and gunicorn for serving.
 
 ## Apps
 
-- catalog: products, categories, the session cart, checkout, orders, ratings, wishlist, and the recommender.
-- accounts: registration, login, logout, roles, profile, and the customer dashboard.
-- backoffice: the custom Owner and Employee panels.
+- catalog holds the products and categories, the session cart, checkout, orders, ratings, the wishlist and the recommender.
+- accounts holds registration, login, logout, roles, the profile and the customer dashboard.
+- backoffice holds the custom Owner and Employee panels.
 
 ## Running it locally
 
