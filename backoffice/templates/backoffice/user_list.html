@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Users{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-3">Users</h1>
+
+<div class="table-responsive">
+    <table class="table align-middle">
+        <thead>
+            <tr><th>Username</th><th>Email</th><th>Role</th><th></th></tr>
+        </thead>
+        <tbody>
+            {% for account in users %}
+                <tr>
+                    <td>{{ account.username }}</td>
+                    <td>{{ account.email }}</td>
+                    <td>{% if account.profile %}{{ account.profile.get_role_display }}{% else %}Customer{% endif %}</td>
+                    <td><a href="{% url 'backoffice:user_role_edit' account.pk %}" class="btn btn-sm btn-outline-secondary">Set role</a></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<a href="{% url 'backoffice:panel_home' %}" class="btn btn-link">Back to backoffice</a>
+{% endblock %}

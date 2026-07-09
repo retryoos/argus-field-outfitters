@@ -1,6 +1,9 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, redirect, render
 
+from accounts.forms import UserRoleForm
+from accounts.models import Profile
 from catalog.forms import CategoryForm, ProductForm, SubcategoryForm
 from catalog.models import Category, Order, Product, Subcategory
 
@@ -161,3 +164,24 @@ def order_list(request):
 def order_detail(request, pk):
     order = get_object_or_404(Order, pk=pk)
     return render(request, 'backoffice/order_detail.html', {'order': order})
+
+
+@login_required
+def user_list(request):
+    users = User.objects.select_related('profile').order_by('username')
+    return render(request, 'backoffice/user_list.html', {'users': users})
+
+
+@login_required
+def user_role_edit(request, pk):
+    account = get_object_or_404(User, pk=pk)
+    profile, created = Profile.objects.get_or_create(user=account)
+    form = UserRoleForm(request.POST or None, instance=profile)
+    if form.is_valid():
+        form.save()
+        return redirect('backoffice:user_list')
+    return render(request, 'backoffice/form.html', {
+        'form': form,
+        'title': 'Set role for ' + account.username,
+        'cancel_url': 'backoffice:user_list',
+    })
