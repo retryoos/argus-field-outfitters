@@ -1,3 +1,6 @@
+# The cart is a plain dict in the session that maps a product id to a quantity.
+# It lives there instead of the database so a guest can fill a cart before
+# signing in. Session data is stored as JSON, which is why the keys are strings.
 from .models import Product
 
 CART_SESSION_KEY = 'cart'
@@ -17,6 +20,7 @@ class Cart:
         self.save()
 
     def set_quantity(self, product, quantity):
+        # Setting the quantity to zero removes the item from the cart.
         key = str(product.id)
         if quantity > 0:
             self.cart[key] = quantity
@@ -35,9 +39,11 @@ class Cart:
         self.save()
 
     def save(self):
+        # Mark the session as changed so Django writes it back.
         self.session.modified = True
 
     def __iter__(self):
+        # Yield each row with its product loaded so templates can loop the cart.
         products = Product.objects.filter(id__in=self.cart.keys())
         for product in products:
             quantity = self.cart[str(product.id)]

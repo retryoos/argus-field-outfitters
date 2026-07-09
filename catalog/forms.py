@@ -31,6 +31,8 @@ class ProductFilterForm(forms.Form):
         self.fields['size'].choices = self.value_choices('size_variant')
 
     def value_choices(self, field_name):
+        # The dropdown options are read from the products themselves so the
+        # filter only ever offers values that exist in the catalogue.
         values = (Product.objects
                   .exclude(**{field_name: ''})
                   .values_list(field_name, flat=True)

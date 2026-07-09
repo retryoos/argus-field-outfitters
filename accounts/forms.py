@@ -5,6 +5,8 @@ from django.contrib.auth.models import User
 from .models import Profile
 
 
+# The built in form only asks for a username and passwords. This one adds the
+# email and the name so the profile page has something to show.
 class RegisterForm(UserCreationForm):
     email = forms.EmailField(required=True)
     first_name = forms.CharField(max_length=150, required=False)

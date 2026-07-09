@@ -30,6 +30,7 @@ class Subcategory(models.Model):
 class Product(models.Model):
     name = models.CharField(max_length=200)
     brand = models.CharField(max_length=100)
+    # PROTECT stops a subcategory from being deleted while products still use it.
     subcategory = models.ForeignKey(Subcategory, on_delete=models.PROTECT, related_name='products')
     price = models.DecimalField(max_digits=8, decimal_places=2)
     size_variant = models.CharField(max_length=50, blank=True, default='One Size')
@@ -77,8 +78,11 @@ class Order(models.Model):
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
+    # PROTECT keeps a product from disappearing out of past orders.
     product = models.ForeignKey(Product, on_delete=models.PROTECT)
     quantity = models.PositiveIntegerField(default=1)
+    # Keeps the price that was paid so a later price change does not rewrite
+    # old orders.
     unit_price = models.DecimalField(max_digits=8, decimal_places=2)
 
     def __str__(self):
@@ -96,6 +100,7 @@ class Rating(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
+        # Each user can rate a product once.
         unique_together = [['user', 'product']]
         ordering = ['-created_at']
 
@@ -119,6 +124,8 @@ class WishlistItem(models.Model):
 class RecentlyViewed(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='recently_viewed')
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='viewed_by')
+    # auto_now bumps the timestamp on every save, so opening a product again
+    # moves it back to the top of the list.
     viewed_at = models.DateTimeField(auto_now=True)
 
     class Meta:

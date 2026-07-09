@@ -1,3 +1,6 @@
+# Role checks for the backoffice. Employees and owners manage the catalogue
+# and see orders. Only owners manage users. The superuser passes every check
+# because it is the root account.
 from functools import wraps
 
 from django.contrib.auth.decorators import login_required
@@ -7,6 +10,7 @@ from accounts.models import Profile
 
 
 def _role(user):
+    # A user without a profile row counts as a plain customer.
     profile = Profile.objects.filter(user=user).first()
     return profile.role if profile else Profile.CUSTOMER
 

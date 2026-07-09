@@ -19,9 +19,11 @@ def index(request):
 
 def product_list(request):
     products = Product.objects.all()
+    # The search box matches the product name or the brand.
     query = request.GET.get('q', '').strip()
     if query:
         products = products.filter(Q(name__icontains=query) | Q(brand__icontains=query))
+    # The filters narrow down whatever the search left, so both work together.
     form = ProductFilterForm(request.GET or None)
     if form.is_valid():
         data = form.cleaned_data
@@ -70,8 +72,11 @@ def subcategory_detail(request, slug):
 
 def product_detail(request, pk):
     product = get_object_or_404(Product, pk=pk)
+    # Remember the visit so the dashboard and the recommender can use it.
     if request.user.is_authenticated:
         RecentlyViewed.objects.update_or_create(user=request.user, product=product)
+    # Related items come from the same subcategory. When that has fewer than
+    # four to offer, the wider category is used instead.
     same_subcategory = Product.objects.filter(
         subcategory=product.subcategory, stock__gt=0
     ).exclude(pk=product.pk).order_by('-created_at')
@@ -131,6 +136,7 @@ def cart_remove(request, pk):
 
 
 def _checkout_initial(user):
+    # Prefill the shipping form with whatever the profile already knows.
     initial = {'ship_full_name': user.get_full_name()}
     if hasattr(user, 'profile'):
         initial['ship_address'] = user.profile.shipping_address
@@ -148,9 +154,12 @@ def _create_order(request, cart, data):
         billing_same=data['billing_same'],
         total=cart.total_price(),
     )
+    # The reference is built from the primary key so it is unique for free.
     order.reference_number = f'AFO-{order.pk:06d}'
     order.save()
     for item in cart:
+        # The price is copied onto the order line so old orders keep the
+        # price that was actually paid.
         OrderItem.objects.create(
             order=order,
             product=item['product'],
@@ -161,6 +170,7 @@ def _create_order(request, cart, data):
 
 
 def _finalize_order(order):
+    # Marking an order paid also takes the bought quantities out of stock.
     order.status = Order.PAID
     order.paid_at = timezone.now()
     order.save()
@@ -171,6 +181,8 @@ def _finalize_order(order):
 
 
 def _stripe_enabled():
+    # Without Stripe keys the checkout skips the payment page and completes
+    # at once. That keeps local development simple.
     return bool(settings.STRIPE_SECRET_KEY)
 
 
@@ -182,10 +194,13 @@ def _start_stripe_session(request, order):
             'price_data': {
                 'currency': 'usd',
                 'product_data': {'name': item.product.name},
+                # Stripe wants amounts in cents.
                 'unit_amount': int(item.unit_price * 100),
             },
             'quantity': item.quantity,
         })
+    # Stripe sends the shopper back to the success url with the session id
+    # filled into the placeholder.
     success_url = request.build_absolute_uri(reverse('catalog:checkout_success'))
     session = stripe.checkout.Session.create(
         mode='payment',
@@ -201,6 +216,7 @@ def _start_stripe_session(request, order):
 @login_required
 def checkout(request):
     cart = Cart(request)
+    # There is nothing to check out when the cart is empty.
     if len(cart) == 0:
         return redirect('catalog:cart')
     if request.method == 'POST':
@@ -223,6 +239,9 @@ def checkout(request):
 
 @login_required
 def checkout_success(request):
+    # Stripe sends the shopper here after payment. The order is marked paid
+    # only after Stripe confirms the session, and the status check stops a
+    # page refresh from processing the same order twice.
     session_id = request.GET.get('session_id')
     order = get_object_or_404(Order, stripe_session_id=session_id, user=request.user)
     if order.status != Order.PAID:
@@ -252,6 +271,7 @@ def rate(request, pk):
     form = RatingForm(request.POST)
     if not form.is_valid():
         return JsonResponse({'error': 'invalid rating'}, status=400)
+    # Each user gets one rating per product. Rating again replaces the old one.
     Rating.objects.update_or_create(
         user=request.user,
         product=product,
@@ -276,6 +296,7 @@ def wishlist(request):
 @login_required
 @require_POST
 def wishlist_toggle(request, pk):
+    # The same button adds and removes, which keeps the template simple.
     product = get_object_or_404(Product, pk=pk)
     item, created = WishlistItem.objects.get_or_create(user=request.user, product=product)
     if not created:

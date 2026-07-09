@@ -1,3 +1,5 @@
+# The staff panels. Everything here sits behind a role check, staff_required
+# for the catalogue and the orders and owner_required for user management.
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, redirect, render
 

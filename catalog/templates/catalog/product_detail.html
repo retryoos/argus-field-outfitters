@@ -72,7 +72,7 @@
     {% if user.is_authenticated %}
         {% csrf_token %}
         <div class="mb-2">
-            <span class="me-2">Your rating:</span>
+            <span class="me-2">Your rating</span>
             {% for star in "12345" %}
                 <button type="button" class="btn btn-link p-0 fs-4 text-warning star" data-value="{{ forloop.counter }}"><i class="bi bi-star"></i></button>
             {% endfor %}

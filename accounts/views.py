@@ -13,6 +13,8 @@ def register(request):
         form = RegisterForm(request.POST)
         if form.is_valid():
             user = form.save()
+            # Sign the new user in right away so they do not have to log in
+            # a second time.
             login(request, user)
             return redirect('catalog:index')
     else:
@@ -22,6 +24,8 @@ def register(request):
 
 @login_required
 def profile(request):
+    # get_or_create covers accounts that were made without a profile row,
+    # like the superuser from createsuperuser.
     profile, created = Profile.objects.get_or_create(user=request.user)
     return render(request, 'accounts/profile.html', {'profile': profile})
 

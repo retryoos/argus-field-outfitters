@@ -1,5 +1,6 @@
 // Dark mode toggle. The chosen theme is kept in local storage and applied to
-// the root element so Bootstrap switches between light and dark.
+// the root element so Bootstrap switches between light and dark. This file
+// loads in the head so the saved theme applies before the page paints.
 (function () {
     var stored = localStorage.getItem('theme');
     if (stored) {

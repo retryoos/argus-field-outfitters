@@ -13,6 +13,7 @@ class Profile(models.Model):
     ]
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    # The role decides what the user can reach. New accounts start as customers.
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default=CUSTOMER)
     phone = models.CharField(max_length=30, blank=True)
     shipping_address = models.TextField(blank=True)
@@ -21,6 +22,7 @@ class Profile(models.Model):
     def __str__(self):
         return self.user.username
 
+    # Small helpers so templates can check roles without repeating the strings.
     @property
     def is_owner(self):
         return self.role == self.OWNER

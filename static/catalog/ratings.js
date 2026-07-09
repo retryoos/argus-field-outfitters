@@ -1,3 +1,7 @@
+// The star rating widget. Clicking a star picks a value and the submit
+// button posts it to the rate endpoint with the csrf token. The page then
+// shows the new average without a reload. All listeners are attached here
+// rather than inline in the HTML.
 $(function () {
     var section = $('#rating-section');
     if (!section.length) {
