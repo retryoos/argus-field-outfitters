@@ -9,6 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="{% static 'css/site.css' %}" rel="stylesheet">
+    <script src="{% static 'js/theme.js' %}"></script>
 </head>
 <body class="d-flex flex-column min-vh-100">
     <nav class="navbar navbar-expand-md navbar-dark bg-dark">
@@ -25,6 +26,9 @@
                     <input class="form-control" type="search" name="q" value="{{ request.GET.q }}" placeholder="Search gear" aria-label="Search gear">
                 </form>
                 <ul class="navbar-nav">
+                    <li class="nav-item d-flex align-items-center me-2">
+                        <button id="theme-toggle" class="btn btn-outline-light btn-sm" type="button" aria-label="Toggle dark mode"><i class="bi bi-moon-stars"></i></button>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'catalog:cart' %}">Cart{% if cart_count %} <span class="badge bg-secondary">{{ cart_count }}</span>{% endif %}</a>
                     </li>
