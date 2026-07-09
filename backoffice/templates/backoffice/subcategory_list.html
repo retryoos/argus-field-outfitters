@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}Manage subcategories{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Subcategories</h1>
+    <a href="{% url 'backoffice:subcategory_create' %}" class="btn btn-dark">Add subcategory</a>
+</div>
+
+<div class="table-responsive">
+    <table class="table align-middle">
+        <thead>
+            <tr><th>Name</th><th>Category</th><th>Slug</th><th></th></tr>
+        </thead>
+        <tbody>
+            {% for subcategory in subcategories %}
+                <tr>
+                    <td>{{ subcategory.name }}</td>
+                    <td>{{ subcategory.category.name }}</td>
+                    <td>{{ subcategory.slug }}</td>
+                    <td>
+                        <a href="{% url 'backoffice:subcategory_edit' subcategory.pk %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                        <a href="{% url 'backoffice:subcategory_delete' subcategory.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="4">No subcategories yet.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<a href="{% url 'backoffice:panel_home' %}" class="btn btn-link">Back to backoffice</a>
+{% endblock %}

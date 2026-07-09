@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Order {{ order.reference_number }}{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-3">Order {{ order.reference_number }}</h1>
+
+<dl class="row">
+    <dt class="col-sm-3">Customer</dt>
+    <dd class="col-sm-9">{{ order.user.username }}</dd>
+    <dt class="col-sm-3">Status</dt>
+    <dd class="col-sm-9">{{ order.get_status_display }}</dd>
+    <dt class="col-sm-3">Placed</dt>
+    <dd class="col-sm-9">{{ order.created_at|date:"d M Y H:i" }}</dd>
+    <dt class="col-sm-3">Ship to</dt>
+    <dd class="col-sm-9">{{ order.ship_full_name }}, {{ order.ship_address }}, {{ order.ship_city }} {{ order.ship_postcode }}, {{ order.ship_country }}</dd>
+</dl>
+
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+            <tr><th>Item</th><th>Quantity</th><th>Unit price</th><th>Subtotal</th></tr>
+        </thead>
+        <tbody>
+            {% for item in order.items.all %}
+                <tr>
+                    <td>{{ item.product.name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>${{ item.unit_price }}</td>
+                    <td>${{ item.subtotal }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr><th colspan="3" class="text-end">Total</th><th>${{ order.total }}</th></tr>
+        </tfoot>
+    </table>
+</div>
+<a href="{% url 'backoffice:order_list' %}" class="btn btn-link">Back to orders</a>
+{% endblock %}

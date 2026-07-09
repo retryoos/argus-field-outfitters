@@ -39,6 +39,7 @@ ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(','
 INSTALLED_APPS = [
     'catalog',
     'accounts',
+    'backoffice',
     'crispy_forms',
     'crispy_bootstrap5',
     'django.contrib.admin',

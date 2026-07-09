@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Product, Subcategory
+from .models import Category, Product, Subcategory
 
 
 class ProductFilterForm(forms.Form):
@@ -51,3 +51,21 @@ class CheckoutForm(forms.Form):
 class RatingForm(forms.Form):
     stars = forms.IntegerField(min_value=1, max_value=5)
     comment = forms.CharField(required=False)
+
+
+class ProductForm(forms.ModelForm):
+    class Meta:
+        model = Product
+        fields = ['name', 'brand', 'subcategory', 'price', 'size_variant', 'color', 'description', 'image', 'stock']
+
+
+class CategoryForm(forms.ModelForm):
+    class Meta:
+        model = Category
+        fields = ['name', 'slug']
+
+
+class SubcategoryForm(forms.ModelForm):
+    class Meta:
+        model = Subcategory
+        fields = ['category', 'name', 'slug']
