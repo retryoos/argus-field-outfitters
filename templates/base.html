@@ -29,6 +29,9 @@
                         <a class="nav-link" href="{% url 'catalog:cart' %}">Cart{% if cart_count %} <span class="badge bg-secondary">{{ cart_count }}</span>{% endif %}</a>
                     </li>
                     {% if user.is_authenticated %}
+                        {% if user.is_superuser or user.profile.is_staff_member %}
+                            <li class="nav-item"><a class="nav-link" href="{% url 'backoffice:panel_home' %}">Backoffice</a></li>
+                        {% endif %}
                         <li class="nav-item"><a class="nav-link" href="{% url 'accounts:dashboard' %}">Dashboard</a></li>
                         <li class="nav-item"><a class="nav-link" href="{% url 'catalog:wishlist' %}">Wishlist</a></li>
                         <li class="nav-item"><a class="nav-link" href="{% url 'accounts:profile' %}">{{ user.username }}</a></li>

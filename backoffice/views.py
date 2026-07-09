@@ -1,4 +1,3 @@
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, redirect, render
 
@@ -7,8 +6,10 @@ from accounts.models import Profile
 from catalog.forms import CategoryForm, ProductForm, SubcategoryForm
 from catalog.models import Category, Order, Product, Subcategory
 
+from .permissions import owner_required, staff_required
 
-@login_required
+
+@staff_required
 def panel_home(request):
     counts = {
         'products': Product.objects.count(),
@@ -19,13 +20,13 @@ def panel_home(request):
     return render(request, 'backoffice/panel_home.html', {'counts': counts})
 
 
-@login_required
+@staff_required
 def product_list(request):
     products = Product.objects.select_related('subcategory')
     return render(request, 'backoffice/product_list.html', {'products': products})
 
 
-@login_required
+@staff_required
 def product_create(request):
     form = ProductForm(request.POST or None, request.FILES or None)
     if form.is_valid():
@@ -38,7 +39,7 @@ def product_create(request):
     })
 
 
-@login_required
+@staff_required
 def product_edit(request, pk):
     product = get_object_or_404(Product, pk=pk)
     form = ProductForm(request.POST or None, request.FILES or None, instance=product)
@@ -52,7 +53,7 @@ def product_edit(request, pk):
     })
 
 
-@login_required
+@staff_required
 def product_delete(request, pk):
     product = get_object_or_404(Product, pk=pk)
     if request.method == 'POST':
@@ -64,13 +65,13 @@ def product_delete(request, pk):
     })
 
 
-@login_required
+@staff_required
 def category_list(request):
     categories = Category.objects.all()
     return render(request, 'backoffice/category_list.html', {'categories': categories})
 
 
-@login_required
+@staff_required
 def category_create(request):
     form = CategoryForm(request.POST or None)
     if form.is_valid():
@@ -83,7 +84,7 @@ def category_create(request):
     })
 
 
-@login_required
+@staff_required
 def category_edit(request, pk):
     category = get_object_or_404(Category, pk=pk)
     form = CategoryForm(request.POST or None, instance=category)
@@ -97,7 +98,7 @@ def category_edit(request, pk):
     })
 
 
-@login_required
+@staff_required
 def category_delete(request, pk):
     category = get_object_or_404(Category, pk=pk)
     if request.method == 'POST':
@@ -109,13 +110,13 @@ def category_delete(request, pk):
     })
 
 
-@login_required
+@staff_required
 def subcategory_list(request):
     subcategories = Subcategory.objects.select_related('category')
     return render(request, 'backoffice/subcategory_list.html', {'subcategories': subcategories})
 
 
-@login_required
+@staff_required
 def subcategory_create(request):
     form = SubcategoryForm(request.POST or None)
     if form.is_valid():
@@ -128,7 +129,7 @@ def subcategory_create(request):
     })
 
 
-@login_required
+@staff_required
 def subcategory_edit(request, pk):
     subcategory = get_object_or_404(Subcategory, pk=pk)
     form = SubcategoryForm(request.POST or None, instance=subcategory)
@@ -142,7 +143,7 @@ def subcategory_edit(request, pk):
     })
 
 
-@login_required
+@staff_required
 def subcategory_delete(request, pk):
     subcategory = get_object_or_404(Subcategory, pk=pk)
     if request.method == 'POST':
@@ -154,25 +155,25 @@ def subcategory_delete(request, pk):
     })
 
 
-@login_required
+@staff_required
 def order_list(request):
     orders = Order.objects.select_related('user')
     return render(request, 'backoffice/order_list.html', {'orders': orders})
 
 
-@login_required
+@staff_required
 def order_detail(request, pk):
     order = get_object_or_404(Order, pk=pk)
     return render(request, 'backoffice/order_detail.html', {'order': order})
 
 
-@login_required
+@owner_required
 def user_list(request):
     users = User.objects.select_related('profile').order_by('username')
     return render(request, 'backoffice/user_list.html', {'users': users})
 
 
-@login_required
+@owner_required
 def user_role_edit(request, pk):
     account = get_object_or_404(User, pk=pk)
     profile, created = Profile.objects.get_or_create(user=account)
