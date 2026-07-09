@@ -1,0 +1,222 @@
+[
+{
+  "model": "catalog.category",
+  "pk": 3,
+  "fields": {
+    "name": "Apparel",
+    "slug": "apparel"
+  }
+},
+{
+  "model": "catalog.category",
+  "pk": 4,
+  "fields": {
+    "name": "Packs and Bags",
+    "slug": "packs-and-bags"
+  }
+},
+{
+  "model": "catalog.category",
+  "pk": 5,
+  "fields": {
+    "name": "Optics and Lighting",
+    "slug": "optics-and-lighting"
+  }
+},
+{
+  "model": "catalog.subcategory",
+  "pk": 3,
+  "fields": {
+    "category": 3,
+    "name": "Jackets",
+    "slug": "jackets"
+  }
+},
+{
+  "model": "catalog.subcategory",
+  "pk": 4,
+  "fields": {
+    "category": 3,
+    "name": "Base Layers",
+    "slug": "base-layers"
+  }
+},
+{
+  "model": "catalog.subcategory",
+  "pk": 5,
+  "fields": {
+    "category": 4,
+    "name": "Backpacks",
+    "slug": "backpacks"
+  }
+},
+{
+  "model": "catalog.subcategory",
+  "pk": 6,
+  "fields": {
+    "category": 5,
+    "name": "Headlamps",
+    "slug": "headlamps"
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": 2,
+  "fields": {
+    "name": "Softshell Jacket",
+    "brand": "5.11 Tactical",
+    "subcategory": 3,
+    "price": "129.99",
+    "size_variant": "L",
+    "color": "Black",
+    "description": "",
+    "image": "",
+    "stock": 12,
+    "created_at": "2026-07-05T14:45:20.858Z"
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": 3,
+  "fields": {
+    "name": "Rain Shell",
+    "brand": "Condor",
+    "subcategory": 3,
+    "price": "89.99",
+    "size_variant": "M",
+    "color": "OD Green",
+    "description": "",
+    "image": "",
+    "stock": 8,
+    "created_at": "2026-07-05T14:45:20.859Z"
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": 4,
+  "fields": {
+    "name": "Fleece Jacket",
+    "brand": "Helikon",
+    "subcategory": 3,
+    "price": "74.50",
+    "size_variant": "XL",
+    "color": "Coyote",
+    "description": "",
+    "image": "",
+    "stock": 5,
+    "created_at": "2026-07-05T14:45:20.859Z"
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": 5,
+  "fields": {
+    "name": "Merino Long Sleeve",
+    "brand": "Helikon",
+    "subcategory": 4,
+    "price": "49.99",
+    "size_variant": "M",
+    "color": "Black",
+    "description": "",
+    "image": "",
+    "stock": 20,
+    "created_at": "2026-07-05T14:45:20.861Z"
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": 6,
+  "fields": {
+    "name": "Thermal Top",
+    "brand": "Condor",
+    "subcategory": 4,
+    "price": "34.99",
+    "size_variant": "L",
+    "color": "Grey",
+    "description": "",
+    "image": "",
+    "stock": 15,
+    "created_at": "2026-07-05T14:45:20.861Z"
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": 7,
+  "fields": {
+    "name": "Assault Pack 30L",
+    "brand": "Osprey",
+    "subcategory": 5,
+    "price": "159.00",
+    "size_variant": "30L",
+    "color": "Black",
+    "description": "",
+    "image": "",
+    "stock": 10,
+    "created_at": "2026-07-05T14:45:20.863Z"
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": 8,
+  "fields": {
+    "name": "Daypack 20L",
+    "brand": "5.11 Tactical",
+    "subcategory": 5,
+    "price": "99.00",
+    "size_variant": "20L",
+    "color": "Coyote",
+    "description": "",
+    "image": "",
+    "stock": 14,
+    "created_at": "2026-07-05T14:45:20.863Z"
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": 9,
+  "fields": {
+    "name": "Expedition Pack 45L",
+    "brand": "Mystery Ranch",
+    "subcategory": 5,
+    "price": "229.00",
+    "size_variant": "45L",
+    "color": "Ranger Green",
+    "description": "",
+    "image": "",
+    "stock": 4,
+    "created_at": "2026-07-05T14:45:20.864Z"
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": 10,
+  "fields": {
+    "name": "Trail Headlamp",
+    "brand": "Fenix",
+    "subcategory": 6,
+    "price": "54.99",
+    "size_variant": "One Size",
+    "color": "Black",
+    "description": "",
+    "image": "",
+    "stock": 25,
+    "created_at": "2026-07-05T14:45:20.865Z"
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": 11,
+  "fields": {
+    "name": "Compact Headlamp",
+    "brand": "Petzl",
+    "subcategory": 6,
+    "price": "39.99",
+    "size_variant": "One Size",
+    "color": "Black",
+    "description": "",
+    "image": "",
+    "stock": 30,
+    "created_at": "2026-07-05T14:45:20.866Z"
+  }
+}
+]
