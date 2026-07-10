@@ -11,7 +11,9 @@ class Cart:
         self.session = request.session
         cart = self.session.get(CART_SESSION_KEY)
         if cart is None:
-            cart = self.session[CART_SESSION_KEY] = {}
+            # First time the visitor touches the cart, start it empty.
+            cart = {}
+            self.session[CART_SESSION_KEY] = cart
         self.cart = cart
 
     def add(self, product, quantity=1):

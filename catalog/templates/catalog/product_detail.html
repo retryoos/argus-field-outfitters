@@ -70,6 +70,7 @@
     <h2 class="h5">Ratings</h2>
     <p class="mb-2">Average <span id="rating-average">{{ average }}</span> from <span id="rating-count">{{ rating_count }}</span> ratings.</p>
     {% if user.is_authenticated %}
+        {# This hidden csrf input sits outside a form on purpose, ratings.js reads it when it posts the rating. #}
         {% csrf_token %}
         <div class="mb-2">
             <span class="me-2">Your rating</span>

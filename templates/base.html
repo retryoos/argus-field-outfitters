@@ -15,6 +15,7 @@
     <nav class="navbar navbar-expand-md navbar-dark bg-dark">
         <div class="container">
             <a class="navbar-brand" href="{% url 'catalog:index' %}">Argus Field Outfitters</a>
+            {# Bootstrap wires this button to the hamburger menu through its data attributes, no custom code needed. #}
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainnav" aria-controls="mainnav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -30,6 +31,7 @@
                         <button id="theme-toggle" class="btn btn-outline-light btn-sm" type="button" aria-label="Toggle dark mode"><i class="bi bi-moon-stars"></i></button>
                     </li>
                     <li class="nav-item">
+                        {# cart_count comes from the context processor in the catalog app. #}
                         <a class="nav-link" href="{% url 'catalog:cart' %}">Cart{% if cart_count %} <span class="badge bg-secondary">{{ cart_count }}</span>{% endif %}</a>
                     </li>
                     {% if user.is_authenticated %}
