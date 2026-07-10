@@ -1,6 +1,7 @@
 # The staff panels. Everything here sits behind a role check, staff_required
 # for the catalogue and the orders and owner_required for user management.
 from django.contrib.auth.models import User
+from django.db.models import ProtectedError
 from django.shortcuts import get_object_or_404, redirect, render
 
 from accounts.forms import UserRoleForm
@@ -30,10 +31,13 @@ def product_list(request):
 
 @staff_required
 def product_create(request):
-    form = ProductForm(request.POST or None, request.FILES or None)
-    if form.is_valid():
-        form.save()
-        return redirect('backoffice:product_list')
+    if request.method == 'POST':
+        form = ProductForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('backoffice:product_list')
+    else:
+        form = ProductForm()
     return render(request, 'backoffice/form.html', {
         'form': form,
         'title': 'Add product',
@@ -44,10 +48,13 @@ def product_create(request):
 @staff_required
 def product_edit(request, pk):
     product = get_object_or_404(Product, pk=pk)
-    form = ProductForm(request.POST or None, request.FILES or None, instance=product)
-    if form.is_valid():
-        form.save()
-        return redirect('backoffice:product_list')
+    if request.method == 'POST':
+        form = ProductForm(request.POST, request.FILES, instance=product)
+        if form.is_valid():
+            form.save()
+            return redirect('backoffice:product_list')
+    else:
+        form = ProductForm(instance=product)
     return render(request, 'backoffice/form.html', {
         'form': form,
         'title': 'Edit product',
@@ -58,12 +65,18 @@ def product_edit(request, pk):
 @staff_required
 def product_delete(request, pk):
     product = get_object_or_404(Product, pk=pk)
+    error = ''
     if request.method == 'POST':
-        product.delete()
-        return redirect('backoffice:product_list')
+        # Products inside past orders are protected from deletion.
+        try:
+            product.delete()
+            return redirect('backoffice:product_list')
+        except ProtectedError:
+            error = 'This product is part of past orders so it cannot be deleted.'
     return render(request, 'backoffice/confirm_delete.html', {
         'object': product,
         'cancel_url': 'backoffice:product_list',
+        'error': error,
     })
 
 
@@ -75,10 +88,13 @@ def category_list(request):
 
 @staff_required
 def category_create(request):
-    form = CategoryForm(request.POST or None)
-    if form.is_valid():
-        form.save()
-        return redirect('backoffice:category_list')
+    if request.method == 'POST':
+        form = CategoryForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('backoffice:category_list')
+    else:
+        form = CategoryForm()
     return render(request, 'backoffice/form.html', {
         'form': form,
         'title': 'Add category',
@@ -89,10 +105,13 @@ def category_create(request):
 @staff_required
 def category_edit(request, pk):
     category = get_object_or_404(Category, pk=pk)
-    form = CategoryForm(request.POST or None, instance=category)
-    if form.is_valid():
-        form.save()
-        return redirect('backoffice:category_list')
+    if request.method == 'POST':
+        form = CategoryForm(request.POST, instance=category)
+        if form.is_valid():
+            form.save()
+            return redirect('backoffice:category_list')
+    else:
+        form = CategoryForm(instance=category)
     return render(request, 'backoffice/form.html', {
         'form': form,
         'title': 'Edit category',
@@ -103,12 +122,18 @@ def category_edit(request, pk):
 @staff_required
 def category_delete(request, pk):
     category = get_object_or_404(Category, pk=pk)
+    error = ''
     if request.method == 'POST':
-        category.delete()
-        return redirect('backoffice:category_list')
+        # A category cannot go away while products still live under it.
+        try:
+            category.delete()
+            return redirect('backoffice:category_list')
+        except ProtectedError:
+            error = 'This category still contains products so it cannot be deleted.'
     return render(request, 'backoffice/confirm_delete.html', {
         'object': category,
         'cancel_url': 'backoffice:category_list',
+        'error': error,
     })
 
 
@@ -120,10 +145,13 @@ def subcategory_list(request):
 
 @staff_required
 def subcategory_create(request):
-    form = SubcategoryForm(request.POST or None)
-    if form.is_valid():
-        form.save()
-        return redirect('backoffice:subcategory_list')
+    if request.method == 'POST':
+        form = SubcategoryForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('backoffice:subcategory_list')
+    else:
+        form = SubcategoryForm()
     return render(request, 'backoffice/form.html', {
         'form': form,
         'title': 'Add subcategory',
@@ -134,10 +162,13 @@ def subcategory_create(request):
 @staff_required
 def subcategory_edit(request, pk):
     subcategory = get_object_or_404(Subcategory, pk=pk)
-    form = SubcategoryForm(request.POST or None, instance=subcategory)
-    if form.is_valid():
-        form.save()
-        return redirect('backoffice:subcategory_list')
+    if request.method == 'POST':
+        form = SubcategoryForm(request.POST, instance=subcategory)
+        if form.is_valid():
+            form.save()
+            return redirect('backoffice:subcategory_list')
+    else:
+        form = SubcategoryForm(instance=subcategory)
     return render(request, 'backoffice/form.html', {
         'form': form,
         'title': 'Edit subcategory',
@@ -148,12 +179,18 @@ def subcategory_edit(request, pk):
 @staff_required
 def subcategory_delete(request, pk):
     subcategory = get_object_or_404(Subcategory, pk=pk)
+    error = ''
     if request.method == 'POST':
-        subcategory.delete()
-        return redirect('backoffice:subcategory_list')
+        # A subcategory with products is protected from deletion.
+        try:
+            subcategory.delete()
+            return redirect('backoffice:subcategory_list')
+        except ProtectedError:
+            error = 'This subcategory still has products in it so it cannot be deleted.'
     return render(request, 'backoffice/confirm_delete.html', {
         'object': subcategory,
         'cancel_url': 'backoffice:subcategory_list',
+        'error': error,
     })
 
 
@@ -179,12 +216,15 @@ def user_list(request):
 def user_role_edit(request, pk):
     account = get_object_or_404(User, pk=pk)
     profile, created = Profile.objects.get_or_create(user=account)
-    form = UserRoleForm(request.POST or None, instance=profile)
-    if form.is_valid():
-        form.save()
-        return redirect('backoffice:user_list')
+    if request.method == 'POST':
+        form = UserRoleForm(request.POST, instance=profile)
+        if form.is_valid():
+            form.save()
+            return redirect('backoffice:user_list')
+    else:
+        form = UserRoleForm(instance=profile)
     return render(request, 'backoffice/form.html', {
         'form': form,
-        'title': 'Set role for ' + account.username,
+        'title': f'Set role for {account.username}',
         'cancel_url': 'backoffice:user_list',
     })
