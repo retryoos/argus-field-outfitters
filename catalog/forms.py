@@ -50,7 +50,6 @@ class CheckoutForm(forms.Form):
     ship_city = forms.CharField(max_length=100, label='City')
     ship_postcode = forms.CharField(max_length=20, label='Postcode')
     ship_country = forms.CharField(max_length=100, label='Country')
-    billing_same = forms.BooleanField(required=False, initial=True, label='Billing address is the same as shipping')
 
 
 class RatingForm(forms.Form):

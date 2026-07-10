@@ -64,7 +64,6 @@ class Order(models.Model):
     ship_city = models.CharField(max_length=100)
     ship_postcode = models.CharField(max_length=20)
     ship_country = models.CharField(max_length=100)
-    billing_same = models.BooleanField(default=True)
     # Filled when a Stripe session starts so the success page can find the
     # order again.
     stripe_session_id = models.CharField(max_length=255, blank=True)

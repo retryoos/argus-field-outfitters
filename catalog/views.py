@@ -153,7 +153,6 @@ def _create_order(request, cart, data):
         ship_city=data['ship_city'],
         ship_postcode=data['ship_postcode'],
         ship_country=data['ship_country'],
-        billing_same=data['billing_same'],
         total=cart.total_price(),
     )
     # The reference is built from the primary key so it is unique for free,
