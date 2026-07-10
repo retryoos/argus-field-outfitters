@@ -52,9 +52,6 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    # WhiteNoise serves the collected static files straight from the app in
-    # production, so the host needs no separate static file setup.
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -133,8 +130,8 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Django 5 configures file storage through this dict. Production swaps the
-# static backend for the whitenoise one further down.
+# Django 5 configures file storage through this dict rather than separate
+# settings, this is the standard shape for a project with no custom storage.
 STORAGES = {
     'default': {
         'BACKEND': 'django.core.files.storage.FileSystemStorage',
@@ -169,9 +166,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Extra hardening that only applies in production, where DEBUG is off.
 if not DEBUG:
-    # The manifest storage renames each static file with a hash so browsers
-    # can cache them for a long time.
-    STORAGES['staticfiles']['BACKEND'] = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
     # The host terminates https in front of the app, so this header tells
     # Django the request was already secure. The rest forces https and keeps
     # cookies off plain http.

@@ -22,8 +22,7 @@ project for ITC 4214 Internet Programming. The site is built with Django and Boo
 
 ## Technology
 
-Python, Django, SQLite, Bootstrap 5, jQuery, django-crispy-forms, Stripe in test mode,
-WhiteNoise for static files, and gunicorn for serving.
+Python, Django, SQLite, Bootstrap 5, jQuery, django-crispy-forms, and Stripe in test mode.
 
 ## Apps
 
@@ -49,7 +48,7 @@ git and is never committed.
 
 ## Deployment
 
-See DEPLOY.md for the steps to deploy on PythonAnywhere or Render.
+See DEPLOY.md for the steps to deploy on PythonAnywhere.
 
 ## Project layout
 
