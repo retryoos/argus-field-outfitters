@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% block title %}Dashboard{% endblock %}
 
@@ -83,7 +83,7 @@
                 {% for order in orders %}
                     <tr>
                         <td>{{ order.reference_number }}</td>
-                        <td>{{ order.created_at|date:"d M Y" }}</td>
+                        <td>{{ order.created_at|date:'d M Y' }}</td>
                         <td>{{ order.get_status_display }}</td>
                         <td>${{ order.total }}</td>
                         <td><a href="{% url 'catalog:order_confirmation' order.pk %}" class="btn btn-sm btn-outline-secondary">View</a></td>
