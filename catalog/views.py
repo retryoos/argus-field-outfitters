@@ -301,4 +301,8 @@ def wishlist_toggle(request, pk):
     item, created = WishlistItem.objects.get_or_create(user=request.user, product=product)
     if not created:
         item.delete()
-    return redirect(request.POST.get('next') or 'catalog:wishlist')
+    # Only follow next targets that point somewhere inside the site.
+    next_url = request.POST.get('next', '')
+    if not next_url.startswith('/') or next_url.startswith('//'):
+        next_url = ''
+    return redirect(next_url or 'catalog:wishlist')
