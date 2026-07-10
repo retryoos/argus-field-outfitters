@@ -27,9 +27,12 @@ class ProductAdmin(admin.ModelAdmin):
     list_editable = ['price', 'stock']
 
     def thumbnail(self, product):
+        # format_html escapes the inserted url, which keeps script injection
+        # out of the admin.
         if product.image:
             return format_html('<img src="{}" style="height: 40px;">', product.image.url)
         return 'No image'
+    # Django shows this text as the column header.
     thumbnail.short_description = 'Image'
 
 

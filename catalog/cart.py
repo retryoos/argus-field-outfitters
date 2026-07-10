@@ -56,6 +56,8 @@ class Cart:
             }
 
     def __len__(self):
+        # Counts every unit in the cart, which is what len and the navbar
+        # badge use.
         return sum(self.cart.values())
 
     def total_price(self):

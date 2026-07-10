@@ -19,7 +19,8 @@ def index(request):
 
 def product_list(request):
     products = Product.objects.all()
-    # The search box matches the product name or the brand.
+    # The search box matches the product name or the brand. Q objects let
+    # the two checks combine with OR in a single query.
     query = request.GET.get('q', '').strip()
     if query:
         products = products.filter(Q(name__icontains=query) | Q(brand__icontains=query))
@@ -137,6 +138,7 @@ def cart_remove(request, pk):
 
 def _checkout_initial(user):
     # Prefill the shipping form with whatever the profile already knows.
+    # hasattr covers accounts that never got a profile row.
     initial = {'ship_full_name': user.get_full_name()}
     if hasattr(user, 'profile'):
         initial['ship_address'] = user.profile.shipping_address
@@ -154,7 +156,8 @@ def _create_order(request, cart, data):
         billing_same=data['billing_same'],
         total=cart.total_price(),
     )
-    # The reference is built from the primary key so it is unique for free.
+    # The reference is built from the primary key so it is unique for free,
+    # padded to six digits so it reads like a real order number.
     order.reference_number = f'AFO-{order.pk:06d}'
     order.save()
     for item in cart:
@@ -176,6 +179,7 @@ def _finalize_order(order):
     order.save()
     for item in order.items.all():
         product = item.product
+        # max keeps stock from going below zero.
         product.stock = max(product.stock - item.quantity, 0)
         product.save()
 
@@ -199,8 +203,11 @@ def _start_stripe_session(request, order):
             },
             'quantity': item.quantity,
         })
-    # Stripe sends the shopper back to the success url with the session id
-    # filled into the placeholder.
+    # This is the standard checkout session flow from the Stripe docs.
+    # build_absolute_uri produces full addresses with the domain, which
+    # Stripe needs because it redirects from its own site. The braces in the
+    # success url are literal text that Stripe fills in with the session id,
+    # not Python formatting.
     success_url = request.build_absolute_uri(reverse('catalog:checkout_success'))
     session = stripe.checkout.Session.create(
         mode='payment',
@@ -301,7 +308,8 @@ def wishlist_toggle(request, pk):
     item, created = WishlistItem.objects.get_or_create(user=request.user, product=product)
     if not created:
         item.delete()
-    # Only follow next targets that point somewhere inside the site.
+    # Only follow next targets that point somewhere inside the site. A value
+    # starting with two slashes would point at another host, so it is refused.
     next_url = request.POST.get('next', '')
     if not next_url.startswith('/') or next_url.startswith('//'):
         next_url = ''

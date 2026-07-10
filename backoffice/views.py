@@ -25,6 +25,8 @@ def panel_home(request):
 
 @staff_required
 def product_list(request):
+    # select_related fetches the subcategory in the same query instead of
+    # one extra query per row.
     products = Product.objects.select_related('subcategory')
     return render(request, 'backoffice/product_list.html', {'products': products})
 

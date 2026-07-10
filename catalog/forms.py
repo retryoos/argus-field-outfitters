@@ -25,6 +25,9 @@ class ProductFilterForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
+        # The choices are rebuilt every time the form is created, so a brand
+        # or color added through the backoffice shows up in the filter
+        # without a code change.
         super().__init__(*args, **kwargs)
         self.fields['brand'].choices = self.value_choices('brand')
         self.fields['color'].choices = self.value_choices('color')

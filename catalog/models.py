@@ -65,6 +65,8 @@ class Order(models.Model):
     ship_postcode = models.CharField(max_length=20)
     ship_country = models.CharField(max_length=100)
     billing_same = models.BooleanField(default=True)
+    # Filled when a Stripe session starts so the success page can find the
+    # order again.
     stripe_session_id = models.CharField(max_length=255, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     paid_at = models.DateTimeField(null=True, blank=True)
@@ -114,6 +116,7 @@ class WishlistItem(models.Model):
     added_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
+        # A user can save a product only once.
         unique_together = [['user', 'product']]
         ordering = ['-added_at']
 
@@ -129,6 +132,7 @@ class RecentlyViewed(models.Model):
     viewed_at = models.DateTimeField(auto_now=True)
 
     class Meta:
+        # One row per user and product. A revisit only refreshes the timestamp.
         unique_together = [['user', 'product']]
         ordering = ['-viewed_at']
 

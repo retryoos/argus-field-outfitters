@@ -1,6 +1,9 @@
 # Role checks for the backoffice. Employees and owners manage the catalogue
 # and see orders. Only owners manage users. The superuser passes every check
 # because it is the root account.
+# Each check wraps the view the same way login_required does. The wrapper
+# runs first and either lets the request through or raises PermissionDenied,
+# which Django turns into the custom 403 page.
 from functools import wraps
 
 from django.contrib.auth.decorators import login_required
@@ -16,6 +19,7 @@ def _role(user):
 
 
 def staff_required(view):
+    # wraps keeps the original view name so debugging output stays readable.
     @wraps(view)
     @login_required
     def wrapper(request, *args, **kwargs):
