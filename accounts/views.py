@@ -8,6 +8,15 @@ from .forms import ProfileForm, RegisterForm, UserForm
 from .models import Profile
 
 
+def _profile_for(user):
+    # A superuser's profile defaults to Owner instead of the model's usual
+    # Customer default, so root's own profile page reads correctly the
+    # first time it is created.
+    role = Profile.OWNER if user.is_superuser else Profile.CUSTOMER
+    profile, created = Profile.objects.get_or_create(user=user, defaults={'role': role})
+    return profile
+
+
 def register(request):
     if request.method == 'POST':
         form = RegisterForm(request.POST)
@@ -26,13 +35,13 @@ def register(request):
 def profile(request):
     # get_or_create covers accounts that were made without a profile row,
     # like the superuser from createsuperuser.
-    profile, created = Profile.objects.get_or_create(user=request.user)
+    profile = _profile_for(request.user)
     return render(request, 'accounts/profile.html', {'profile': profile})
 
 
 @login_required
 def profile_edit(request):
-    profile, created = Profile.objects.get_or_create(user=request.user)
+    profile = _profile_for(request.user)
     if request.method == 'POST':
         user_form = UserForm(request.POST, instance=request.user)
         profile_form = ProfileForm(request.POST, request.FILES, instance=profile)
@@ -51,7 +60,7 @@ def profile_edit(request):
 
 @login_required
 def dashboard(request):
-    profile, created = Profile.objects.get_or_create(user=request.user)
+    profile = _profile_for(request.user)
     return render(request, 'accounts/dashboard.html', {
         'profile': profile,
         'orders': request.user.orders.all(),
