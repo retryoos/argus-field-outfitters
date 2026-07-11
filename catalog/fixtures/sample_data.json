@@ -70,7 +70,7 @@
     "size_variant": "L",
     "color": "Black",
     "description": "",
-    "image": "",
+    "image": "products/Matte_black_tactical_jacket_flat-lay.png",
     "stock": 12,
     "created_at": "2026-07-05T14:45:20.858Z"
   }
@@ -86,7 +86,7 @@
     "size_variant": "M",
     "color": "OD Green",
     "description": "",
-    "image": "",
+    "image": "products/Olive_green_hooded_jacket_flat_lay.png",
     "stock": 8,
     "created_at": "2026-07-05T14:45:20.859Z"
   }
@@ -102,7 +102,7 @@
     "size_variant": "XL",
     "color": "Coyote",
     "description": "",
-    "image": "",
+    "image": "products/Neatly_folded_fleece_jacket_on_grey_background.png",
     "stock": 5,
     "created_at": "2026-07-05T14:45:20.859Z"
   }
@@ -118,7 +118,7 @@
     "size_variant": "M",
     "color": "Black",
     "description": "",
-    "image": "",
+    "image": "products/Folded_black_thermal_shirt_on_grey_background.png",
     "stock": 20,
     "created_at": "2026-07-05T14:45:20.861Z"
   }
@@ -134,7 +134,7 @@
     "size_variant": "L",
     "color": "Grey",
     "description": "",
-    "image": "",
+    "image": "products/Minimalist_folded_gray_sweatshirt_flat-lay.png",
     "stock": 15,
     "created_at": "2026-07-05T14:45:20.861Z"
   }
@@ -150,7 +150,7 @@
     "size_variant": "30L",
     "color": "Black",
     "description": "",
-    "image": "",
+    "image": "products/Tactical_backpack_with_MOLLE_webbing.png",
     "stock": 10,
     "created_at": "2026-07-05T14:45:20.863Z"
   }
@@ -182,7 +182,7 @@
     "size_variant": "45L",
     "color": "Ranger Green",
     "description": "",
-    "image": "",
+    "image": "products/Olive_green_hiking_backpack_in_catalog_style.png",
     "stock": 4,
     "created_at": "2026-07-05T14:45:20.864Z"
   }
@@ -198,8 +198,8 @@
     "size_variant": "One Size",
     "color": "Black",
     "description": "",
-    "image": "",
-    "stock": 25,
+    "image": "products/Black_LED_headlamp_with_adjustable_strap.png",
+    "stock": 24,
     "created_at": "2026-07-05T14:45:20.865Z"
   }
 },
@@ -214,7 +214,7 @@
     "size_variant": "One Size",
     "color": "Black",
     "description": "",
-    "image": "",
+    "image": "products/Black_LED_headlamp_on_neutral_backdrop.png",
     "stock": 30,
     "created_at": "2026-07-05T14:45:20.866Z"
   }
