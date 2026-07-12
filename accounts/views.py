@@ -10,8 +10,7 @@ from .models import Profile
 
 def _profile_for(user):
     # A superuser's profile defaults to Owner instead of the model's usual
-    # Customer default, so root's own profile page reads correctly the
-    # first time it is created.
+    # Customer default, so root's own profile page reads correctly the first time it is created
     role = Profile.OWNER if user.is_superuser else Profile.CUSTOMER
     profile, created = Profile.objects.get_or_create(user=user, defaults={'role': role})
     return profile
@@ -22,19 +21,18 @@ def register(request):
         form = RegisterForm(request.POST)
         if form.is_valid():
             user = form.save()
-            # Sign the new user in right away so they do not have to log in
-            # a second time.
+            # Sign the new user in right away so they do not have to log in a second time
             login(request, user)
             return redirect('catalog:index')
     else:
         form = RegisterForm()
+        
     return render(request, 'accounts/register.html', {'form': form})
 
 
 @login_required
 def profile(request):
-    # get_or_create covers accounts that were made without a profile row,
-    # like the superuser from createsuperuser.
+    # get_or_create covers accounts that were made without a profile row
     profile = _profile_for(request.user)
     return render(request, 'accounts/profile.html', {'profile': profile})
 
@@ -52,6 +50,7 @@ def profile_edit(request):
     else:
         user_form = UserForm(instance=request.user)
         profile_form = ProfileForm(instance=profile)
+
     return render(request, 'accounts/profile_edit.html', {
         'user_form': user_form,
         'profile_form': profile_form,
@@ -61,6 +60,7 @@ def profile_edit(request):
 @login_required
 def dashboard(request):
     profile = _profile_for(request.user)
+
     return render(request, 'accounts/dashboard.html', {
         'profile': profile,
         'orders': request.user.orders.all(),

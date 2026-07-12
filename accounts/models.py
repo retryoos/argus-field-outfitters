@@ -17,7 +17,7 @@ class Profile(models.Model):
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default=CUSTOMER)
     phone = models.CharField(max_length=30, blank=True)
     # These four mirror the shipping fields on Order, so a saved address can
-    # prefill every field on the checkout form, not just the street line.
+    # prefill every field on the checkout form
     shipping_address = models.TextField(blank=True)
     shipping_city = models.CharField(max_length=100, blank=True)
     shipping_postcode = models.CharField(max_length=5, blank=True)
@@ -27,7 +27,7 @@ class Profile(models.Model):
     def __str__(self):
         return self.user.username
 
-    # Small helpers so templates can check roles without repeating the strings
+    # Small helper funcs so templates can check roles without repeating the strings
     @property
     def is_owner(self):
         return self.role == self.OWNER
