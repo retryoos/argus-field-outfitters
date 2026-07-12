@@ -8,7 +8,7 @@
 {% if items %}
     <div class="row g-3">
         {% for item in items %}
-            <div class="col-6 col-md-4 col-lg-3">
+            <div class="col-6 col-md-4 col-lg-3 js-wishlist-card">
                 <div class="card h-100">
                     {% if item.product.image %}
                         <img src="{{ item.product.image.url }}" class="card-img-top" alt="{{ item.product.name }}">
@@ -17,9 +17,8 @@
                         <h2 class="h6 card-title"><a href="{% url 'catalog:product_detail' item.product.pk %}">{{ item.product.name }}</a></h2>
                         <p class="card-text text-muted mb-1">{{ item.product.brand }}</p>
                         <p class="card-text fw-semibold">${{ item.product.price }}</p>
-                        <form method="post" action="{% url 'catalog:wishlist_toggle' item.product.pk %}">
+                        <form method="post" action="{% url 'catalog:wishlist_toggle' item.product.pk %}" class="js-wishlist-toggle" data-mode="remove">
                             {% csrf_token %}
-                            <input type="hidden" name="next" value="{% url 'catalog:wishlist' %}">
                             <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
                         </form>
                     </div>

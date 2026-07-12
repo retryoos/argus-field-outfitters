@@ -44,17 +44,17 @@
             <dd class="col-8">{% if product.stock > 0 %}In stock{% else %}Out of stock{% endif %}</dd>
         </dl>
         {% if product.stock > 0 %}
-            <form method="post" action="{% url 'catalog:cart_add' product.pk %}" class="mb-3">
+            <form method="post" action="{% url 'catalog:cart_add' product.pk %}" class="js-cart-add mb-3">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-dark">Add to cart</button>
+                <span class="js-cart-message small text-success ms-2"></span>
             </form>
         {% else %}
             <button class="btn btn-dark mb-3" disabled>Out of stock</button>
         {% endif %}
         {% if user.is_authenticated %}
-            <form method="post" action="{% url 'catalog:wishlist_toggle' product.pk %}" class="mb-3">
+            <form method="post" action="{% url 'catalog:wishlist_toggle' product.pk %}" class="js-wishlist-toggle mb-3" data-mode="toggle">
                 {% csrf_token %}
-                <input type="hidden" name="next" value="{{ request.path }}">
                 <button type="submit" class="btn btn-outline-danger">
                     {% if in_wishlist %}<i class="bi bi-heart-fill"></i> In wishlist{% else %}<i class="bi bi-heart"></i> Add to wishlist{% endif %}
                 </button>

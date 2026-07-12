@@ -29,8 +29,8 @@
                 </form>
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        {# cart_count comes from the context processor in the catalog app. #}
-                        <a class="nav-link" href="{% url 'catalog:cart' %}">Cart{% if cart_count %} <span class="badge bg-secondary">{{ cart_count }}</span>{% endif %}</a>
+                        {# cart_count comes from the context processor in the catalog app, cart.js updates the same badge after an AJAX cart action. #}
+                        <a class="nav-link" href="{% url 'catalog:cart' %}">Cart <span id="cart-badge" class="badge bg-secondary"{% if not cart_count %} style="display: none;"{% endif %}>{{ cart_count }}</span></a>
                     </li>
                     {% if user.is_authenticated %}
                         {% if user.is_superuser or user.profile.is_staff_member %}
@@ -70,6 +70,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    {# Loaded on every page since cart and wishlist actions appear on several, it does nothing on a page with no matching elements. #}
+    <script src="{% static 'catalog/cart.js' %}"></script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

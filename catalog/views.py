@@ -119,22 +119,31 @@ def cart_view(request):
 
 @require_POST
 def cart_add(request, pk):
+    # Called by cart.js, the response is read as JSON, not followed as a
+    # redirect, so the page never reloads just to add one item.
     product = get_object_or_404(Product, pk=pk)
     cart = Cart(request)
     cart.add(product)
-    return redirect('catalog:cart')
+    return JsonResponse({'cart_count': len(cart), 'product_name': product.name})
 
 
 @require_POST
 def cart_update(request, pk):
     product = get_object_or_404(Product, pk=pk)
     cart = Cart(request)
-    try:
-        quantity = int(request.POST.get('quantity', 1))
-    except (TypeError, ValueError):
-        quantity = 1
-    cart.set_quantity(product, quantity)
-    return redirect('catalog:cart')
+    form = CartUpdateForm(request.POST)
+    if not form.is_valid():
+        return JsonResponse({'error': 'invalid quantity'}, status=400)
+    cart.set_quantity(product, form.cleaned_data['quantity'])
+    # Find the row again after the update so the response can carry the
+    # fresh line total, or tell the page the row was removed entirely.
+    line = next((item for item in cart if item['product'].pk == product.pk), None)
+    return JsonResponse({
+        'cart_count': len(cart),
+        'cart_total': str(cart.total_price()),
+        'line_total': str(line['total']) if line else '0',
+        'removed': line is None,
+    })
 
 
 @require_POST
@@ -142,7 +151,7 @@ def cart_remove(request, pk):
     product = get_object_or_404(Product, pk=pk)
     cart = Cart(request)
     cart.remove(product)
-    return redirect('catalog:cart')
+    return JsonResponse({'cart_count': len(cart), 'cart_total': str(cart.total_price())})
 
 
 def _checkout_initial(user):
@@ -330,13 +339,10 @@ def wishlist(request):
 @require_POST
 def wishlist_toggle(request, pk):
     # The same button adds and removes, which keeps the template simple.
+    # wishlist.js reads in_wishlist to decide whether to swap the button's
+    # icon in place, or remove the whole card on the wishlist page itself.
     product = get_object_or_404(Product, pk=pk)
     item, created = WishlistItem.objects.get_or_create(user=request.user, product=product)
     if not created:
         item.delete()
-    # Only follow next targets that point somewhere inside the site. A value
-    # starting with two slashes would point at another host, so it is refused.
-    next_url = request.POST.get('next', '')
-    if not next_url.startswith('/') or next_url.startswith('//'):
-        next_url = ''
-    return redirect(next_url or 'catalog:wishlist')
+    return JsonResponse({'in_wishlist': created})
