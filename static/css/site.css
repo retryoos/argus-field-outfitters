@@ -31,3 +31,29 @@ real storefront instead of a plain list. */
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.12);
     transform: translateY(-2px);
 }
+
+/* Star ratings are two rows of icons stacked on top of each other, an empty
+row underneath and a filled row on top that is clipped to a percentage
+width, so an average like 3.7 shows a partly filled fourth star instead of
+rounding up or down to a whole number. */
+.star-rating {
+    position: relative;
+    display: inline-block;
+    line-height: 1;
+    color: #b08d57;
+}
+
+.star-rating .stars-filled {
+    position: absolute;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.star-rating .stars-empty i,
+.star-rating .stars-filled i {
+    display: inline-block;
+    width: 1em;
+    text-align: center;
+}

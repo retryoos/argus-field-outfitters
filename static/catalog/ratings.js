@@ -46,6 +46,9 @@ $(function () {
         $.post(rateUrl, payload, function (data) {
             $('#rating-average').text(data.average);
             $('#rating-count').text(data.count);
+            // The visual stars are a percentage width, same math as the
+            // widthratio tag that draws them on first page load.
+            $('#rating-stars-fill').css('width', (data.average / 5 * 100) + '%');
             section.find('#rating-message').text('Your review was saved.');
         });
     });

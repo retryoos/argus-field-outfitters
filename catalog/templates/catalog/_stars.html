@@ -1,0 +1,8 @@
+{% if average %}
+    <span class="star-rating" role="img" aria-label="{{ average }} out of 5 stars">
+        <span class="stars-empty"><i class="bi bi-star"></i><i class="bi bi-star"></i><i class="bi bi-star"></i><i class="bi bi-star"></i><i class="bi bi-star"></i></span>
+        <span class="stars-filled" style="width: {% widthratio average 5 100 %}%"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></span>
+    </span>
+{% else %}
+    <span class="text-muted small">No ratings yet</span>
+{% endif %}

@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}Argus Field Outfitters{% endblock %}</title>
     <meta name="description" content="Tactical and outdoor field gear from Argus Field Outfitters.">
+    {# A small inline compass mark in the brand colors, no separate image file needed. #}
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%232b2e25'/%3E%3Cpolygon points='16,6 20,16 16,26 12,16' fill='%23b08d57'/%3E%3C/svg%3E">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="{% static 'css/site.css' %}" rel="stylesheet">
@@ -56,9 +58,13 @@
         {% block content %}{% endblock %}
     </main>
 
-    <footer class="bg-dark text-light py-3 mt-auto">
-        <div class="container">
-            <p class="mb-0">Argus Field Outfitters, ITC 4214 final project.</p>
+    <footer class="bg-dark text-light py-4 mt-auto">
+        <div class="container d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div>
+                <div class="fw-semibold"><i class="bi bi-compass-fill me-1"></i>Argus Field Outfitters</div>
+                <div class="small text-white-50">Gear for the field, since 2020.</div>
+            </div>
+            <div class="small text-white-50">&copy; 2026 Argus Field Outfitters. All rights reserved.</div>
         </div>
     </footer>
 

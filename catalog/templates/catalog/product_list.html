@@ -62,6 +62,7 @@
                         <div class="card-body">
                             <h2 class="h6 card-title"><a class="stretched-link text-decoration-none" href="{% url 'catalog:product_detail' product.pk %}">{{ product.name }}</a></h2>
                             <p class="card-text text-muted mb-1">{{ product.brand }}</p>
+                            <p class="card-text mb-1">{% include 'catalog/_stars.html' with average=product.average_rating %}</p>
                             <p class="card-text fw-semibold">${{ product.price }}</p>
                         </div>
                     </div>

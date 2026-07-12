@@ -16,11 +16,18 @@ from .models import Category, Order, OrderItem, Product, Rating, RecentlyViewed,
 
 
 def index(request):
-    return render(request, 'catalog/index.html')
+    return render(request, 'catalog/index.html', {
+        'new_arrivals': Product.objects.filter(stock__gt=0).annotate(
+            average_rating=Avg('ratings__stars')
+        ).order_by('-created_at')[:4],
+        'categories': Category.objects.all(),
+    })
 
 
 def product_list(request):
-    products = Product.objects.all()
+    # The annotation puts each product's average star rating on the card
+    # grid, one query for the whole page instead of one per card.
+    products = Product.objects.annotate(average_rating=Avg('ratings__stars'))
     # The search box matches the product name or the brand. Q objects let
     # the two checks combine with OR in a single query.
     query = request.GET.get('q', '').strip()
@@ -55,7 +62,7 @@ def product_list(request):
 
 def category_detail(request, slug):
     category = get_object_or_404(Category, slug=slug)
-    products = Product.objects.filter(subcategory__category=category)
+    products = Product.objects.filter(subcategory__category=category).annotate(average_rating=Avg('ratings__stars'))
     return render(request, 'catalog/product_list.html', {
         'heading': category.name,
         'products': products,
@@ -65,7 +72,7 @@ def category_detail(request, slug):
 
 def subcategory_detail(request, slug):
     subcategory = get_object_or_404(Subcategory, slug=slug)
-    products = Product.objects.filter(subcategory=subcategory)
+    products = Product.objects.filter(subcategory=subcategory).annotate(average_rating=Avg('ratings__stars'))
     return render(request, 'catalog/product_list.html', {
         'heading': subcategory.name,
         'products': products,
