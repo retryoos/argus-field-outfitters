@@ -1,7 +1,7 @@
 # The staff panels. Everything here sits behind a role check, staff_required
 # for the catalogue and the orders and owner_required for user management.
 from django.contrib.auth.models import User
-from django.db.models import ProtectedError
+from django.db.models import ProtectedError, Q
 from django.shortcuts import get_object_or_404, redirect, render
 
 from accounts.forms import UserRoleForm
@@ -10,6 +10,20 @@ from catalog.forms import CategoryForm, ProductForm, SubcategoryForm
 from catalog.models import Category, Order, Product, Subcategory
 
 from .permissions import owner_required, staff_required
+
+# Only these keys are ever passed to order_by, so a query string can never
+# sort by an arbitrary field name.
+PRODUCT_SORT_FIELDS = {
+    'name': 'name', '-name': '-name',
+    'price': 'price', '-price': '-price',
+    'stock': 'stock', '-stock': '-stock',
+}
+
+ORDER_SORT_FIELDS = {
+    'date': 'created_at', '-date': '-created_at',
+    'status': 'status', '-status': '-status',
+    'total': 'total', '-total': '-total',
+}
 
 
 @staff_required
@@ -28,7 +42,16 @@ def product_list(request):
     # select_related fetches the subcategory in the same query instead of
     # one extra query per row.
     products = Product.objects.select_related('subcategory')
-    return render(request, 'backoffice/product_list.html', {'products': products})
+    query = request.GET.get('q', '').strip()
+    if query:
+        products = products.filter(Q(name__icontains=query) | Q(brand__icontains=query))
+    sort = request.GET.get('sort', 'name')
+    products = products.order_by(PRODUCT_SORT_FIELDS.get(sort, 'name'))
+    return render(request, 'backoffice/product_list.html', {
+        'products': products,
+        'query': query,
+        'sort': sort,
+    })
 
 
 @staff_required
@@ -199,7 +222,16 @@ def subcategory_delete(request, pk):
 @staff_required
 def order_list(request):
     orders = Order.objects.select_related('user')
-    return render(request, 'backoffice/order_list.html', {'orders': orders})
+    query = request.GET.get('q', '').strip()
+    if query:
+        orders = orders.filter(Q(reference_number__icontains=query) | Q(user__username__icontains=query))
+    sort = request.GET.get('sort', '-date')
+    orders = orders.order_by(ORDER_SORT_FIELDS.get(sort, '-created_at'))
+    return render(request, 'backoffice/order_list.html', {
+        'orders': orders,
+        'query': query,
+        'sort': sort,
+    })
 
 
 @staff_required

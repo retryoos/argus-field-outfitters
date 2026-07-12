@@ -5,10 +5,21 @@
 {% block content %}
 <h1 class="h3 mb-3">Orders</h1>
 
+<form method="get" class="mb-3">
+    <input class="form-control" type="search" name="q" value="{{ query }}" placeholder="Search by reference or customer">
+</form>
+
 <div class="table-responsive">
     <table class="table align-middle">
         <thead>
-            <tr><th>Reference</th><th>Customer</th><th>Date</th><th>Status</th><th>Total</th><th></th></tr>
+            <tr>
+                <th>Reference</th>
+                <th>Customer</th>
+                <th><a class="text-reset" href="?q={{ query }}&sort={% if sort == 'date' %}-date{% else %}date{% endif %}">Date{% if sort == 'date' %} <i class="bi bi-caret-up-fill"></i>{% elif sort == '-date' %} <i class="bi bi-caret-down-fill"></i>{% endif %}</a></th>
+                <th><a class="text-reset" href="?q={{ query }}&sort={% if sort == 'status' %}-status{% else %}status{% endif %}">Status{% if sort == 'status' %} <i class="bi bi-caret-up-fill"></i>{% elif sort == '-status' %} <i class="bi bi-caret-down-fill"></i>{% endif %}</a></th>
+                <th><a class="text-reset" href="?q={{ query }}&sort={% if sort == 'total' %}-total{% else %}total{% endif %}">Total{% if sort == 'total' %} <i class="bi bi-caret-up-fill"></i>{% elif sort == '-total' %} <i class="bi bi-caret-down-fill"></i>{% endif %}</a></th>
+                <th></th>
+            </tr>
         </thead>
         <tbody>
             {% for order in orders %}
@@ -21,7 +32,7 @@
                     <td><a href="{% url 'backoffice:order_detail' order.pk %}" class="btn btn-sm btn-outline-secondary">View</a></td>
                 </tr>
             {% empty %}
-                <tr><td colspan="6">No orders yet.</td></tr>
+                <tr><td colspan="6">No orders match your search.</td></tr>
             {% endfor %}
         </tbody>
     </table>
