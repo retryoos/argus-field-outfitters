@@ -8,8 +8,10 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
+from accounts.models import Profile
+
 from .cart import Cart
-from .forms import CheckoutForm, ProductFilterForm, RatingForm
+from .forms import CartUpdateForm, CheckoutForm, ProductFilterForm, RatingForm
 from .models import Category, Order, OrderItem, Product, Rating, RecentlyViewed, Subcategory, WishlistItem
 
 
@@ -141,8 +143,24 @@ def _checkout_initial(user):
     # hasattr covers accounts that never got a profile row.
     initial = {'ship_full_name': user.get_full_name()}
     if hasattr(user, 'profile'):
-        initial['ship_address'] = user.profile.shipping_address
+        profile = user.profile
+        initial['ship_address'] = profile.shipping_address
+        initial['ship_city'] = profile.shipping_city
+        initial['ship_postcode'] = profile.shipping_postcode
+        initial['ship_country'] = profile.shipping_country
     return initial
+
+
+def _save_address(user, data):
+    # Only runs when the shopper ticks "save this address". get_or_create
+    # covers a brand new customer who has never visited their profile page,
+    # and so has no Profile row yet.
+    profile, created = Profile.objects.get_or_create(user=user)
+    profile.shipping_address = data['ship_address']
+    profile.shipping_city = data['ship_city']
+    profile.shipping_postcode = data['ship_postcode']
+    profile.shipping_country = data['ship_country']
+    profile.save()
 
 
 def _create_order(request, cart, data):
@@ -228,6 +246,8 @@ def checkout(request):
     if request.method == 'POST':
         form = CheckoutForm(request.POST)
         if form.is_valid():
+            if form.cleaned_data['save_address']:
+                _save_address(request.user, form.cleaned_data)
             order = _create_order(request, cart, form.cleaned_data)
             if _stripe_enabled():
                 return redirect(_start_stripe_session(request, order))
