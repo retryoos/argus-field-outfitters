@@ -96,7 +96,8 @@
         <ul class="list-unstyled">
             {% for review in reviews %}
                 <li class="border-top py-2">
-                    <strong>{{ review.user.username }}</strong> rated {{ review.stars }} out of 5
+                    <strong>{{ review.user.username }}</strong> rated
+                    {% include 'catalog/_stars.html' with average=review.stars %}
                     <span class="text-muted small">{{ review.created_at|date:'d M Y' }}</span>
                     {% if review.comment %}<div>{{ review.comment }}</div>{% endif %}
                 </li>
