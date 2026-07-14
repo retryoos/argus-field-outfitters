@@ -1,4 +1,4 @@
-# The staff panels. Everything here sits behind a role check, staff_required
+# The staff panels, makes sure everything here sits behind a role check, staff_required is
 # for the catalogue and the orders and owner_required for user management.
 from django.contrib.auth.models import User
 from django.db.models import ProtectedError, Q

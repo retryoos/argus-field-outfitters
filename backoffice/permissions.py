@@ -1,9 +1,8 @@
-# Role checks for the backoffice. Employees and owners manage the catalogue
-# and see orders. Only owners manage users. The superuser passes every check
-# because it is the root account.
-# Each check wraps the view the same way login_required does. The wrapper
-# runs first and either lets the request through or raises PermissionDenied,
-# which Django turns into the custom 403 page.
+# Implementation of role checks for the backoffice, as employees and owners manage the catalogue
+# and see orders, while only owners manage users, and the superuser passes every check
+# because it is the root account of the system
+# Each check wraps the view the same way login_required does, and the wrapper runs first and
+# either lets the request through or raises PermissionDenied, which Django turns into the custom 403 page
 from functools import wraps
 
 from django.contrib.auth.decorators import login_required
