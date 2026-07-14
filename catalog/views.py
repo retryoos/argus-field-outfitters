@@ -16,6 +16,8 @@ from .models import Category, Order, OrderItem, Product, Rating, RecentlyViewed,
 
 
 def index(request):
+    # Just the newest four in stock products, the homepage is a teaser, not
+    # the full catalogue browse.
     return render(request, 'catalog/index.html', {
         'new_arrivals': Product.objects.filter(stock__gt=0).annotate(
             average_rating=Avg('ratings__stars')
@@ -60,6 +62,9 @@ def product_list(request):
     })
 
 
+# category_detail and subcategory_detail both reuse product_list.html rather
+# than having their own template, they just narrow the queryset and swap the
+# heading, so the same product grid markup covers all three browse pages.
 def category_detail(request, slug):
     category = get_object_or_404(Category, slug=slug)
     products = Product.objects.filter(subcategory__category=category).annotate(average_rating=Avg('ratings__stars'))
@@ -113,6 +118,8 @@ def product_detail(request, pk):
 
 
 def cart_view(request):
+    # The cart page itself is a normal full page load, only add, update, and
+    # remove below go through AJAX.
     cart = Cart(request)
     return render(request, 'catalog/cart.html', {'cart': cart})
 
@@ -236,7 +243,7 @@ def _start_stripe_session(request, order):
             },
             'quantity': item.quantity,
         })
-    # This is the standard checkout session flow from the Stripe docs.
+    # This is the standard checkout session flow from the Stripe docs
     # build_absolute_uri produces full addresses with the domain, which
     # Stripe needs because it redirects from its own site. The braces in the
     # success url are literal text that Stripe fills in with the session id,
@@ -297,11 +304,15 @@ def checkout_success(request):
 
 @login_required
 def checkout_cancel(request):
+    # Stripe sends the shopper here if they back out of its hosted payment
+    # page instead of finishing it.
     return redirect('catalog:cart')
 
 
 @login_required
 def order_confirmation(request, pk):
+    # user=request.user, not just pk, so a customer can't view another
+    # shopper's order by guessing the URL.
     order = get_object_or_404(Order, pk=pk, user=request.user)
     return render(request, 'catalog/order_confirmation.html', {'order': order})
 
@@ -331,6 +342,8 @@ def rate(request, pk):
 
 @login_required
 def wishlist(request):
+    # select_related fetches each item's product in the same query instead of
+    # one extra query per row.
     items = request.user.wishlist_items.select_related('product')
     return render(request, 'catalog/wishlist.html', {'items': items})
 

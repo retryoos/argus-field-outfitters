@@ -3,7 +3,7 @@ from .models import Product, RecentlyViewed
 
 # Suggest products from the same subcategory as the last item the user opened,
 # skipping anything they have already seen. A user with no history gets the
-# newest gear instead so the block is never empty.
+# newest gear instead so the block is never empty
 def recommendations_for_user(user, limit=4):
     recent = RecentlyViewed.objects.filter(user=user).select_related('product').first()
     if recent:

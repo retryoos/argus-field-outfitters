@@ -3,7 +3,7 @@
 // submit, so none of them reload the page. Every form below still posts to
 // the same Django view used before, this file only stops the browser's own
 // submit and does the same POST through jQuery instead, then updates just
-// the part of the page that changed.
+// the part of the page that changed
 
 $(function () {
     var cartBadge = $('#cart-badge');
@@ -17,7 +17,7 @@ $(function () {
         }
     }
 
-    // Add to cart, the button on a product page.
+    // Add to cart, the button on a product page
     $('.js-cart-add').on('submit', function (e) {
         e.preventDefault();
         var form = $(this);
@@ -29,7 +29,7 @@ $(function () {
 
     // Change a quantity on the cart page. Reloading when the cart empties
     // out entirely is the simplest way to show the normal empty cart
-    // message without duplicating that markup here in JavaScript.
+    // message without duplicating that markup here in JavaScript
     $('.js-cart-update').on('submit', function (e) {
         e.preventDefault();
         var form = $(this);
@@ -49,7 +49,7 @@ $(function () {
         });
     });
 
-    // Remove a row on the cart page, same empty cart handling as above.
+    // Remove a row on the cart page, same empty cart handling as above
     $('.js-cart-remove').on('submit', function (e) {
         e.preventDefault();
         var form = $(this);
@@ -67,7 +67,7 @@ $(function () {
 
     // Wishlist toggle. The product page swaps the button in place, the
     // wishlist page removes the whole card instead, since taking something
-    // off the wishlist there means it should disappear from the list.
+    // off the wishlist there means it should disappear from the list
     $('.js-wishlist-toggle').on('submit', function (e) {
         e.preventDefault();
         var form = $(this);

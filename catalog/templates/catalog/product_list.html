@@ -13,6 +13,9 @@
     {% endfor %}
 </div>
 
+{# category_detail and subcategory_detail render this same template without
+   passing a form, so the filter sidebar only shows up on the main shop and
+   search page. #}
 <div class="row">
     {% if form %}
         <div class="col-12 col-lg-3 mb-4">

@@ -82,6 +82,8 @@ class ProductFilterForm(forms.Form):
         return [('', 'Any')] + [(value, value) for value in values]
 
 
+# save_address is opt in and checked by default, ticking it off copies the
+# shipping fields onto the shopper's Profile so next checkout can prefill them.
 class CheckoutForm(forms.Form):
     ship_full_name = forms.CharField(max_length=200, label='Full name')
     ship_address = forms.CharField(max_length=255, widget=forms.Textarea(attrs={'rows': 2}), label='Address')
@@ -91,15 +93,22 @@ class CheckoutForm(forms.Form):
     save_address = forms.BooleanField(required=False, initial=True, label='Save this address for next time')
 
 
+# This is where the 1 to 5 star range is actually enforced, the model field
+# itself has no bounds.
 class RatingForm(forms.Form):
     stars = forms.IntegerField(min_value=1, max_value=5)
     comment = forms.CharField(required=False)
 
 
+# min_value=0 is intentional, setting the quantity to 0 in the cart is how a
+# line gets removed, the view treats that as a delete rather than an error.
 class CartUpdateForm(forms.Form):
     quantity = forms.IntegerField(min_value=0, max_value=99)
 
 
+# These three ModelForms live in catalog rather than backoffice because
+# backoffice imports them directly for its product, category, and
+# subcategory CRUD screens.
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product

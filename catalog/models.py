@@ -2,6 +2,8 @@ from django.contrib.auth.models import User
 from django.db import models
 
 
+# Category and Subcategory are the two step hierarchy every Product sits under,
+# Category > Subcategory > Product, used for both the nav menu and filtering.
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
     slug = models.SlugField(max_length=100, unique=True)
@@ -17,6 +19,8 @@ class Category(models.Model):
 class Subcategory(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='subcategories')
     name = models.CharField(max_length=100)
+    # Unique across every subcategory, not just within its own category, since
+    # subcategory pages are looked up by slug alone.
     slug = models.SlugField(max_length=100, unique=True)
 
     class Meta:
@@ -30,13 +34,15 @@ class Subcategory(models.Model):
 class Product(models.Model):
     name = models.CharField(max_length=200)
     brand = models.CharField(max_length=100)
-    # PROTECT stops a subcategory from being deleted while products still use it.
+    # protect stops a subcategory from being deleted while products still use it.
     subcategory = models.ForeignKey(Subcategory, on_delete=models.PROTECT, related_name='products')
     price = models.DecimalField(max_digits=8, decimal_places=2)
     size_variant = models.CharField(max_length=50, blank=True, default='One Size')
     color = models.CharField(max_length=50, blank=True)
     description = models.TextField(blank=True)
     image = models.ImageField(upload_to='products/', blank=True)
+    # Stock at zero is what marks a product out of stock, there is no separate
+    # boolean field for availability.
     stock = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -48,6 +54,8 @@ class Product(models.Model):
 
 
 class Order(models.Model):
+    # Only pending and paid for now, there is no shipped or delivered stage
+    # yet, that is future work rather than something the store tracks today.
     PENDING = 'pending'
     PAID = 'paid'
     STATUS_CHOICES = [
@@ -96,6 +104,7 @@ class OrderItem(models.Model):
 class Rating(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ratings')
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='ratings')
+    # The 1 to 5 range is enforced by RatingForm, not at the database level.
     stars = models.PositiveSmallIntegerField()
     comment = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

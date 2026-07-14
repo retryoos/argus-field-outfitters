@@ -1,7 +1,7 @@
 /* Small brand tweaks on top of Bootstrap. An olive tone on the navbar and
 footer ties the site to the outdoor gear theme instead of the plain default
 Bootstrap black, and a tan accent on the brand icon echoes the coyote and
-ranger green colors already used on the products themselves. */
+ranger green colors already used on the products themselves */
 
 .navbar.bg-dark,
 footer.bg-dark {
@@ -22,7 +22,7 @@ footer p {
 }
 
 /* A slight lift on hover makes the product and feature cards feel like a
-real storefront instead of a plain list. */
+real storefront instead of a plain list */
 .card {
     transition: box-shadow 0.15s ease, transform 0.15s ease;
 }
@@ -35,7 +35,7 @@ real storefront instead of a plain list. */
 /* Star ratings are two rows of icons stacked on top of each other, an empty
 row underneath and a filled row on top that is clipped to a percentage
 width, so an average like 3.7 shows a partly filled fourth star instead of
-rounding up or down to a whole number. */
+rounding up or down to a whole number */
 .star-rating {
     position: relative;
     display: inline-block;
