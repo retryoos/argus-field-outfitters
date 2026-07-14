@@ -33,7 +33,8 @@
                         <a class="nav-link" href="{% url 'catalog:cart' %}">Cart <span id="cart-badge" class="badge bg-secondary"{% if not cart_count %} style="display: none;"{% endif %}>{{ cart_count }}</span></a>
                     </li>
                     {% if user.is_authenticated %}
-                        {% if user.is_superuser or user.profile.is_staff_member %}
+                        {# perms reads the logged in user's permissions, this is true for anyone in the Employee or Owner group, and for the superuser. #}
+                        {% if perms.accounts.access_backoffice %}
                             <li class="nav-item"><a class="nav-link" href="{% url 'backoffice:panel_home' %}">Backoffice</a></li>
                         {% endif %}
                         <li class="nav-item"><a class="nav-link" href="{% url 'accounts:dashboard' %}">Dashboard</a></li>

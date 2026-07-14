@@ -5,7 +5,7 @@ from django.db.models import ProtectedError, Q
 from django.shortcuts import get_object_or_404, redirect, render
 
 from accounts.forms import UserRoleForm
-from accounts.models import Profile
+from accounts.roles import role_of, set_role
 from catalog.forms import CategoryForm, ProductForm, SubcategoryForm
 from catalog.models import Category, Order, Product, Subcategory
 
@@ -242,21 +242,26 @@ def order_detail(request, pk):
 
 @owner_required
 def user_list(request):
-    users = User.objects.select_related('profile').order_by('username')
-    return render(request, 'backoffice/user_list.html', {'users': users})
+    # prefetch_related pulls each user's groups in one extra query rather than
+    # one per user, since role_of reads group membership for every row.
+    users = User.objects.prefetch_related('groups').order_by('username')
+    rows = [{'account': user, 'role': role_of(user)} for user in users]
+    return render(request, 'backoffice/user_list.html', {'rows': rows})
 
 
 @owner_required
 def user_role_edit(request, pk):
     account = get_object_or_404(User, pk=pk)
-    profile, created = Profile.objects.get_or_create(user=account)
     if request.method == 'POST':
-        form = UserRoleForm(request.POST, instance=profile)
+        form = UserRoleForm(request.POST)
         if form.is_valid():
-            form.save()
+            # set_role adds the account to the matching group, or to neither
+            # group for a plain customer.
+            set_role(account, form.cleaned_data['role'])
             return redirect('backoffice:user_list')
     else:
-        form = UserRoleForm(instance=profile)
+        # Preselect whatever role the account already has.
+        form = UserRoleForm(initial={'role': role_of(account)})
     return render(request, 'backoffice/form.html', {
         'form': form,
         'title': f'Set role for {account.username}',

@@ -25,7 +25,8 @@
     <a href="{% url 'backoffice:category_list' %}" class="list-group-item list-group-item-action">Manage categories</a>
     <a href="{% url 'backoffice:subcategory_list' %}" class="list-group-item list-group-item-action">Manage subcategories</a>
     <a href="{% url 'backoffice:order_list' %}" class="list-group-item list-group-item-action">View orders</a>
-    {% if user.is_superuser or user.profile.is_owner %}
+    {# Only the Owner group carries manage_users, so an employee never sees this link, and cannot reach the page by url either. #}
+    {% if perms.accounts.manage_users %}
         <a href="{% url 'backoffice:user_list' %}" class="list-group-item list-group-item-action">Manage users and roles</a>
     {% endif %}
 </div>

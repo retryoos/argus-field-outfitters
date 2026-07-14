@@ -9,10 +9,10 @@ from .models import Profile
 
 
 def _profile_for(user):
-    # A superuser's profile defaults to Owner instead of the model's usual
-    # Customer default, so root's own profile page reads correctly the first time it is created
-    role = Profile.OWNER if user.is_superuser else Profile.CUSTOMER
-    profile, created = Profile.objects.get_or_create(user=user, defaults={'role': role})
+    # The role now lives in the user's groups, not on the profile, so a profile
+    # only needs a row to exist. get_or_create covers accounts that were made
+    # without one.
+    profile, created = Profile.objects.get_or_create(user=user)
     return profile
 
 

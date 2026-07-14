@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from catalog.forms import COUNTRY_CHOICES, postcode_validator
 
 from .models import Profile
+from .roles import EMPLOYEE, OWNER
 
 
 # The built in form only asks for a username and pw, this one adds the
@@ -36,7 +37,14 @@ class ProfileForm(forms.ModelForm):
         fields = ['phone', 'shipping_address', 'shipping_city', 'shipping_postcode', 'shipping_country', 'avatar']
 
 
-class UserRoleForm(forms.ModelForm):
-    class Meta:
-        model = Profile
-        fields = ['role']
+# The owner picks one of these three on the set role screen. Customer is the
+# no-group option, the other two match the Employee and Owner group names, and
+# the view turns the choice into group membership.
+class UserRoleForm(forms.Form):
+    CUSTOMER = 'Customer'
+    ROLE_CHOICES = [
+        (CUSTOMER, 'Customer'),
+        (EMPLOYEE, 'Employee'),
+        (OWNER, 'Owner'),
+    ]
+    role = forms.ChoiceField(choices=ROLE_CHOICES, label='Role')
