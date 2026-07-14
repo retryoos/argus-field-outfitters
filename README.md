@@ -48,10 +48,12 @@ git and is never committed.
 
 ## Deployment
 
-Live at https://retryoos.pythonanywhere.com/, deployed on PythonAnywhere.
+Live at https://retryoos.pythonanywhere.com/, deployed on PythonAnywhere. See DEPLOY.md
+for the steps.
 
 ## Project layout
 
 argus holds the settings and the root urls. catalog, accounts, and backoffice are the
 apps. Shared templates and the error pages live in the templates folder. Shared static
-files live in the static folder. Uploaded images live in the media folder.
+files live in the static folder. Uploaded images live in the media folder. The ERD and the
+sitemap are in the docs folder.
