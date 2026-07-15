@@ -1,6 +1,6 @@
 # Tests for the role based security. The point of these is that every check is
 # made against the server, not against whether a link happens to be on the page,
-# so each one asks for the url directly the way somebody typing it in would.
+# so each one asks for the url directly the way somebody typing it in would
 from decimal import Decimal
 
 from django.contrib.auth.models import User
@@ -14,7 +14,7 @@ from catalog.models import Category, Product, Subcategory
 class RoleTestCase(TestCase):
     def setUp(self):
         # The groups and their permissions are created by the accounts migration,
-        # so they already exist in the test database.
+        # so they already exist in the test database
         self.customer = User.objects.create_user(username='customer', password='pw-for-tests')
         self.employee = User.objects.create_user(username='employee', password='pw-for-tests')
         self.owner = User.objects.create_user(username='owner', password='pw-for-tests')
@@ -55,7 +55,7 @@ class GroupsCarryThePermissions(RoleTestCase):
         set_role(self.customer, EMPLOYEE)
         self.assertEqual(role_of(self.customer), EMPLOYEE)
 
-        # Going back to Customer means belonging to neither group.
+        # Going back to Customer means belonging to neither group
         set_role(self.customer, 'Customer')
         self.assertEqual(self.customer.groups.count(), 0)
         self.assertFalse(User.objects.get(pk=self.customer.pk).has_perm('accounts.access_backoffice'))
@@ -84,7 +84,7 @@ class TheBackofficeIsClosedToCustomers(RoleTestCase):
             self.assertEqual(response.status_code, 403, f'{name} let a customer in')
 
     def test_a_customer_cannot_post_either(self):
-        # Refusing the GET is not enough on its own, the write has to be refused.
+        # Refusing the GET is not enough on its own, the write has to be refused
         self.client.force_login(self.customer)
         response = self.client.post(reverse('backoffice:product_delete', args=[self.product.pk]))
         self.assertEqual(response.status_code, 403)
@@ -127,7 +127,7 @@ class OwnersManageRoles(RoleTestCase):
 
     def test_the_root_account_is_left_out_of_the_role_screen(self):
         # The superuser's access does not come from a group, so there is nothing
-        # to set and the screen refuses rather than pretending otherwise.
+        # to set and the screen refuses rather than pretending otherwise
         self.client.force_login(self.owner)
         self.assertEqual(
             self.client.get(reverse('backoffice:user_role_edit', args=[self.root.pk])).status_code,

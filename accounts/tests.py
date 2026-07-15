@@ -1,4 +1,4 @@
-# Tests for registration, the profile and the dashboard.
+# Tests for registration, the profile and the dashboard
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
@@ -18,7 +18,7 @@ class RegistrationTests(TestCase):
         })
         self.assertRedirects(response, reverse('catalog:index'))
         self.assertTrue(User.objects.filter(username='newcomer').exists())
-        # Signed in already, so there is no second trip through the login page.
+        # Signed in already, so there is no second trip through the login page
         self.assertEqual(int(self.client.session['_auth_user_id']),
                          User.objects.get(username='newcomer').pk)
 
@@ -85,7 +85,7 @@ class ProfileTests(TestCase):
 class PostcodeTests(TestCase):
     def test_it_takes_the_formats_the_country_list_implies(self):
         # The dropdown offers the whole world, so a digits only rule would turn
-        # away real addresses.
+        # away real addresses
         for code in ('14234', 'SW1A 1AA', 'K1A 0B1', '1011 AB', '75008'):
             postcode_validator(code)
 

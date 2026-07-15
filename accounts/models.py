@@ -19,7 +19,7 @@ class Profile(models.Model):
         # The two gates the backoffice checks. These are hung on Profile because
         # it is the accounts app's own model, but they are not about one profile,
         # they are what the Employee and Owner groups grant. access_backoffice
-        # goes to both groups, manage_users only to Owner.
+        # goes to both groups, manage_users only to Owner
         permissions = [
             ('access_backoffice', 'Can access the backoffice'),
             ('manage_users', 'Can manage user roles'),
@@ -31,5 +31,5 @@ class Profile(models.Model):
     @property
     def role_label(self):
         # What the profile and dashboard pages display, read from the user's
-        # group membership rather than a stored field.
+        # group membership rather than a stored field
         return role_of(self.user)

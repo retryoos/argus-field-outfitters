@@ -18,7 +18,7 @@ $(function () {
     }
 
     // Reads the message the view sends back with a 400, which is how the
-    // stock limit is explained to the shopper.
+    // stock limit is explained to the shopper
     function errorFrom(xhr) {
         if (xhr.responseJSON && xhr.responseJSON.error) {
             return xhr.responseJSON.error;
@@ -35,7 +35,7 @@ $(function () {
             updateCartBadge(data.cart_count);
             message.removeClass('text-danger').addClass('text-success').text('Added to cart.');
         }).fail(function (xhr) {
-            // The view refuses to put more in the cart than the shop has.
+            // The view refuses to put more in the cart than the shop has
             message.removeClass('text-success').addClass('text-danger').text(errorFrom(xhr));
         });
     });

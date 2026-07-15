@@ -17,7 +17,7 @@ urlpatterns = [
     path('checkout/', views.checkout, name='checkout'),
     path('checkout/success/', views.checkout_success, name='checkout_success'),
     path('checkout/cancel/', views.checkout_cancel, name='checkout_cancel'),
-    # Stripe posts here itself, no shopper ever opens this url.
+    # Stripe posts here itself, no shopper ever opens this url
     path('checkout/webhook/', views.stripe_webhook, name='stripe_webhook'),
     path('order/<int:pk>/', views.order_confirmation, name='order_confirmation'),
     path('rate/<int:pk>/', views.rate, name='rate'),

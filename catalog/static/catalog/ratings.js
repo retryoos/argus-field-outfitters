@@ -3,7 +3,7 @@
 // shows the new average without a reload. All listeners are attached here
 // rather than inline in the HTML
 
-// jQuery runs this function once the page has finished loading.
+// jQuery runs this function once the page has finished loading
 $(function () {
     var section = $('#rating-section');
     if (!section.length) {

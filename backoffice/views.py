@@ -1,5 +1,5 @@
 # The staff panels, makes sure everything here sits behind a role check, staff_required is
-# for the catalogue and the orders and owner_required for user management.
+# for the catalogue and the orders and owner_required for user management
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db.models import ProtectedError, Q
@@ -14,7 +14,7 @@ from catalog.models import Category, Order, Product, Subcategory
 from .permissions import owner_required, staff_required
 
 # Only these keys are ever passed to order_by, so a query string can never
-# sort by an arbitrary field name.
+# sort by an arbitrary field name
 PRODUCT_SORT_FIELDS = {
     'name': 'name', '-name': '-name',
     'price': 'price', '-price': '-price',
@@ -42,7 +42,7 @@ def panel_home(request):
 @staff_required
 def product_list(request):
     # select_related fetches the subcategory in the same query instead of
-    # one extra query per row.
+    # one extra query per row
     products = Product.objects.select_related('subcategory')
     query = request.GET.get('q', '').strip()
     if query:
@@ -97,7 +97,7 @@ def product_delete(request, pk):
     product = get_object_or_404(Product, pk=pk)
     error = ''
     if request.method == 'POST':
-        # Products inside past orders are protected from deletion.
+        # Products inside past orders are protected from deletion
         try:
             product.delete()
             return redirect('backoffice:product_list')
@@ -154,7 +154,7 @@ def category_delete(request, pk):
     category = get_object_or_404(Category, pk=pk)
     error = ''
     if request.method == 'POST':
-        # A category cannot go away while products still live under it.
+        # A category cannot go away while products still live under it
         try:
             category.delete()
             return redirect('backoffice:category_list')
@@ -211,7 +211,7 @@ def subcategory_delete(request, pk):
     subcategory = get_object_or_404(Subcategory, pk=pk)
     error = ''
     if request.method == 'POST':
-        # A subcategory with products is protected from deletion.
+        # A subcategory with products is protected from deletion
         try:
             subcategory.delete()
             return redirect('backoffice:subcategory_list')
@@ -245,7 +245,7 @@ def order_list(request):
 @staff_required
 def order_detail(request, pk):
     # Same idea as the order list, the lines and their products come back in
-    # two queries instead of one per line.
+    # two queries instead of one per line
     order = get_object_or_404(Order.objects.prefetch_related('items__product'), pk=pk)
     return render(request, 'backoffice/order_detail.html', {'order': order})
 
@@ -253,7 +253,7 @@ def order_detail(request, pk):
 @owner_required
 def user_list(request):
     # prefetch_related pulls each user's groups in one extra query rather than
-    # one per user, since role_of reads group membership for every row.
+    # one per user, since role_of reads group membership for every row
     users = User.objects.prefetch_related('groups').order_by('username')
     rows = [{'account': user, 'role': role_of(user)} for user in users]
     return render(request, 'backoffice/user_list.html', {'rows': rows})
@@ -263,18 +263,18 @@ def user_list(request):
 def user_role_edit(request, pk):
     account = get_object_or_404(User, pk=pk)
     # The superuser is the root account and passes every permission check on its
-    # own, so it is not in a role group and there is nothing here to set.
+    # own, so it is not in a role group and there is nothing here to set
     if account.is_superuser:
         raise PermissionDenied
     if request.method == 'POST':
         form = UserRoleForm(request.POST)
         if form.is_valid():
             # set_role adds the account to the matching group, or to neither
-            # group for a plain customer.
+            # group for a plain customer
             set_role(account, form.cleaned_data['role'])
             return redirect('backoffice:user_list')
     else:
-        # Preselect whatever role the account already has.
+        # Preselect whatever role the account already has
         form = UserRoleForm(initial={'role': role_of(account)})
     return render(request, 'backoffice/form.html', {
         'form': form,

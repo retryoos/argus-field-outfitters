@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}Argus Field Outfitters{% endblock %}</title>
     <meta name="description" content="Tactical and outdoor field gear from Argus Field Outfitters.">
-    {# A small inline compass mark in the brand colors, no separate image file needed. #}
+    {# A small inline compass mark in the brand colors, no separate image file needed #}
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%232b2e25'/%3E%3Cpolygon points='16,6 20,16 16,26 12,16' fill='%23b08d57'/%3E%3C/svg%3E">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
@@ -16,7 +16,7 @@
     <nav class="navbar navbar-expand-md navbar-dark bg-dark">
         <div class="container">
             <a class="navbar-brand" href="{% url 'catalog:index' %}"><i class="bi bi-compass-fill me-2"></i>Argus Field Outfitters</a>
-            {# Bootstrap wires this button to the hamburger menu through its data attributes, no custom code needed. #}
+            {# Bootstrap wires this button to the hamburger menu through its data attributes, no custom code needed #}
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainnav" aria-controls="mainnav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -29,11 +29,11 @@
                 </form>
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        {# cart_count comes from the context processor in the catalog app, cart.js updates the same badge after an AJAX cart action. #}
+                        {# cart_count comes from the context processor in the catalog app, cart.js updates the same badge after an AJAX cart action #}
                         <a class="nav-link" href="{% url 'catalog:cart' %}">Cart <span id="cart-badge" class="badge bg-secondary"{% if not cart_count %} style="display: none;"{% endif %}>{{ cart_count }}</span></a>
                     </li>
                     {% if user.is_authenticated %}
-                        {# perms reads the logged in user's permissions, this is true for anyone in the Employee or Owner group, and for the superuser. #}
+                        {# perms reads the logged in user's permissions, this is true for anyone in the Employee or Owner group, and for the superuser #}
                         {% if perms.accounts.access_backoffice %}
                             <li class="nav-item"><a class="nav-link" href="{% url 'backoffice:panel_home' %}">Backoffice</a></li>
                         {% endif %}
@@ -56,7 +56,7 @@
     </nav>
 
     <main class="container py-4">
-        {# Anything passed to django.contrib.messages shows here, the checkout uses it to explain why an order was sent back to the cart. #}
+        {# Anything passed to django.contrib.messages shows here, the checkout uses it to explain why an order was sent back to the cart #}
         {% if messages %}
             {% for message in messages %}
                 <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
@@ -80,7 +80,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    {# Loaded on every page since cart and wishlist actions appear on several, it does nothing on a page with no matching elements. #}
+    {# Loaded on every page since cart and wishlist actions appear on several, it does nothing on a page with no matching elements #}
     <script src="{% static 'catalog/cart.js' %}"></script>
     {% block extra_js %}{% endblock %}
 </body>

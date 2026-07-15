@@ -68,14 +68,14 @@
 
 {% comment %}
 data-rate-url is how ratings.js knows where to POST without hardcoding the
-product id in the script itself.
+product id in the script itself
 {% endcomment %}
 <section class="mt-5" id="rating-section" data-rate-url="{% url 'catalog:rate' product.pk %}">
     <h2 class="h5">Ratings</h2>
     {% comment %}
     Same partial-fill star technique as _stars.html, but written out here
     instead of included, since ratings.js needs the id="rating-stars-fill" hook
-    to redraw the bar after a new rating is submitted.
+    to redraw the bar after a new rating is submitted
     {% endcomment %}
     <p class="mb-2 d-flex align-items-center gap-2">
         <span class="star-rating" role="img" aria-label="{{ average }} out of 5 stars">
@@ -85,7 +85,7 @@ product id in the script itself.
         <span>Average <span id="rating-average">{{ average }}</span> from <span id="rating-count">{{ rating_count }}</span> ratings.</span>
     </p>
     {% if user.is_authenticated %}
-        {# This hidden csrf input sits outside a form on purpose, ratings.js reads it when it posts the rating. #}
+        {# This hidden csrf input sits outside a form on purpose, ratings.js reads it when it posts the rating #}
         {% csrf_token %}
         <div class="mb-2">
             <span class="me-2">Your rating</span>

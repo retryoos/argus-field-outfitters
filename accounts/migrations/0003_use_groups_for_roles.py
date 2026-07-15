@@ -5,7 +5,7 @@ from django.db import migrations
 # and Owner groups, gives each the right permission, and copies every existing
 # user's old role into the matching group before the role column is dropped, so
 # the change is invisible to anyone already in the system, including the users
-# already live on the deployed site.
+# already live on the deployed site
 
 EMPLOYEE = 'Employee'
 OWNER = 'Owner'
@@ -20,7 +20,7 @@ def roles_to_groups(apps, schema_editor):
     # The two custom permissions are declared on Profile, so they hang off its
     # content type. They are created here by hand rather than waiting for
     # Django's own post migrate step, so they are guaranteed to exist before the
-    # groups below try to use them.
+    # groups below try to use them
     profile_type, _ = ContentType.objects.get_or_create(app_label='accounts', model='profile')
     access, _ = Permission.objects.get_or_create(
         codename='access_backoffice', content_type=profile_type,
@@ -31,13 +31,13 @@ def roles_to_groups(apps, schema_editor):
         defaults={'name': 'Can manage user roles'},
     )
 
-    # Employee can reach the backoffice, Owner can also manage user roles.
+    # Employee can reach the backoffice, Owner can also manage user roles
     employee_group, _ = Group.objects.get_or_create(name=EMPLOYEE)
     owner_group, _ = Group.objects.get_or_create(name=OWNER)
     employee_group.permissions.set([access])
     owner_group.permissions.set([access, manage])
 
-    # Copy each existing user's old role into the matching group.
+    # Copy each existing user's old role into the matching group
     for profile in Profile.objects.select_related('user'):
         if profile.role == 'owner':
             profile.user.groups.add(owner_group)
@@ -47,7 +47,7 @@ def roles_to_groups(apps, schema_editor):
 
 def groups_to_roles(apps, schema_editor):
     # The reverse, in case the migration is rolled back, read the role back out
-    # of group membership and write it onto the re-added column.
+    # of group membership and write it onto the re-added column
     Profile = apps.get_model('accounts', 'Profile')
 
     for profile in Profile.objects.select_related('user'):
@@ -70,15 +70,15 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # 1. Register the two custom permissions on Profile.
+        # 1. Register the two custom permissions on Profile
         migrations.AlterModelOptions(
             name='profile',
             options={'permissions': [('access_backoffice', 'Can access the backoffice'), ('manage_users', 'Can manage user roles')]},
         ),
         # 2. Build the groups and move every existing role across, this runs
-        #    while the role column is still here to be read.
+        #    while the role column is still here to be read
         migrations.RunPython(roles_to_groups, groups_to_roles),
-        # 3. Drop the now unused role column.
+        # 3. Drop the now unused role column
         migrations.RemoveField(
             model_name='profile',
             name='role',

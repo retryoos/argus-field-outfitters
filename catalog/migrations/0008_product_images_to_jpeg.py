@@ -10,7 +10,7 @@ from django.db import migrations
 # at. They have been resized to 800px and saved as JPEG instead, which took the
 # whole set from 18.3MB down to 0.62MB. This migration points every product row
 # at its new .jpg file so the change carries over to the deployed site without
-# anyone editing the database by hand.
+# anyone editing the database by hand
 
 
 def png_to_jpg(apps, schema_editor):
@@ -18,14 +18,14 @@ def png_to_jpg(apps, schema_editor):
     for product in Product.objects.exclude(image='').filter(image__endswith='.png'):
         candidate = product.image.name[:-4] + '.jpg'
         # Only repoint a row when the converted file is really on disk, so any
-        # image uploaded through the backoffice is left alone.
+        # image uploaded through the backoffice is left alone
         if os.path.exists(os.path.join(settings.MEDIA_ROOT, candidate)):
             product.image = candidate
             product.save(update_fields=['image'])
 
 
 def jpg_to_png(apps, schema_editor):
-    # The reverse, only useful if the old PNGs are put back alongside.
+    # The reverse, only useful if the old PNGs are put back alongside
     Product = apps.get_model('catalog', 'Product')
     for product in Product.objects.exclude(image='').filter(image__endswith='.jpg'):
         candidate = product.image.name[:-4] + '.png'

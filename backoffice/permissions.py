@@ -6,7 +6,7 @@
 # as having every permission.
 # Each check wraps the view the same way login_required does, the wrapper runs
 # first and either lets the request through or raises PermissionDenied, which
-# Django turns into the custom 403 page.
+# Django turns into the custom 403 page
 from functools import wraps
 
 from django.contrib.auth.decorators import login_required
@@ -14,7 +14,7 @@ from django.core.exceptions import PermissionDenied
 
 
 def staff_required(view):
-    # wraps keeps the original view name so debugging output stays readable.
+    # wraps keeps the original view name so debugging output stays readable
     @wraps(view)
     @login_required
     def wrapper(request, *args, **kwargs):

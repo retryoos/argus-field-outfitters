@@ -4,7 +4,7 @@ from django.db import models
 
 
 # Category and Subcategory are the two step hierarchy every Product sits under,
-# Category > Subcategory > Product, used for both the nav menu and filtering.
+# Category > Subcategory > Product, used for both the nav menu and filtering
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
     slug = models.SlugField(max_length=100, unique=True)
@@ -21,7 +21,7 @@ class Subcategory(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='subcategories')
     name = models.CharField(max_length=100)
     # Unique across every subcategory, not just within its own category, since
-    # subcategory pages are looked up by slug alone.
+    # subcategory pages are looked up by slug alone
     slug = models.SlugField(max_length=100, unique=True)
 
     class Meta:
@@ -35,7 +35,7 @@ class Subcategory(models.Model):
 class Product(models.Model):
     name = models.CharField(max_length=200)
     brand = models.CharField(max_length=100)
-    # protect stops a subcategory from being deleted while products still use it.
+    # protect stops a subcategory from being deleted while products still use it
     subcategory = models.ForeignKey(Subcategory, on_delete=models.PROTECT, related_name='products')
     price = models.DecimalField(max_digits=8, decimal_places=2)
     size_variant = models.CharField(max_length=50, blank=True, default='One Size')
@@ -43,7 +43,7 @@ class Product(models.Model):
     description = models.TextField(blank=True)
     image = models.ImageField(upload_to='products/', blank=True)
     # Stock at zero is what marks a product out of stock, there is no separate
-    # boolean field for availability.
+    # boolean field for availability
     stock = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -56,7 +56,7 @@ class Product(models.Model):
 
 class Order(models.Model):
     # Only pending and paid for now, there is no shipped or delivered stage
-    # yet, that is future work rather than something the store tracks today.
+    # yet, that is future work rather than something the store tracks today
     PENDING = 'pending'
     PAID = 'paid'
     STATUS_CHOICES = [
@@ -74,7 +74,7 @@ class Order(models.Model):
     ship_postcode = models.CharField(max_length=20)
     ship_country = models.CharField(max_length=100)
     # Filled when a Stripe session starts so the success page can find the
-    # order again.
+    # order again
     stripe_session_id = models.CharField(max_length=255, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     paid_at = models.DateTimeField(null=True, blank=True)
@@ -88,11 +88,11 @@ class Order(models.Model):
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
-    # PROTECT keeps a product from disappearing out of past orders.
+    # PROTECT keeps a product from disappearing out of past orders
     product = models.ForeignKey(Product, on_delete=models.PROTECT)
     quantity = models.PositiveIntegerField(default=1)
     # Keeps the price that was paid so a later price change does not rewrite
-    # old orders.
+    # old orders
     unit_price = models.DecimalField(max_digits=8, decimal_places=2)
 
     def __str__(self):
@@ -106,7 +106,7 @@ class Rating(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ratings')
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='ratings')
     # The validators cover anything that goes through a form, including the
-    # admin, and the constraint below backs that up in the database itself.
+    # admin, and the constraint below backs that up in the database itself
     stars = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(5)]
     )
@@ -114,13 +114,13 @@ class Rating(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        # Each user can rate a product once.
+        # Each user can rate a product once
         unique_together = [['user', 'product']]
         ordering = ['-created_at']
         constraints = [
             # Validators only run when something calls full_clean, so a plain
             # save could still write a 99 and throw every average off. This is
-            # the same rule as a CHECK in the table, which nothing can skip.
+            # the same rule as a CHECK in the table, which nothing can skip
             models.CheckConstraint(
                 condition=models.Q(stars__gte=1, stars__lte=5),
                 name='rating_stars_between_1_and_5',
@@ -137,7 +137,7 @@ class WishlistItem(models.Model):
     added_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        # A user can save a product only once.
+        # A user can save a product only once
         unique_together = [['user', 'product']]
         ordering = ['-added_at']
 
@@ -149,11 +149,11 @@ class RecentlyViewed(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='recently_viewed')
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='viewed_by')
     # auto_now bumps the timestamp on every save, so opening a product again
-    # moves it back to the top of the list.
+    # moves it back to the top of the list
     viewed_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        # One row per user and product. A revisit only refreshes the timestamp.
+        # One row per user and product. A revisit only refreshes the timestamp
         unique_together = [['user', 'product']]
         ordering = ['-viewed_at']
 

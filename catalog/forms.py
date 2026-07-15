@@ -5,7 +5,7 @@ from .models import Category, Product, Subcategory
 
 # A plain list rather than a third party package, kept short on purpose, this
 # is every country a shopper might realistically ship to, sorted so the
-# dropdown is easy to scan.
+# dropdown is easy to scan
 COUNTRY_CHOICES = [(name, name) for name in [
     'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 'Argentina',
     'Armenia', 'Australia', 'Austria', 'Azerbaijan', 'Bahamas', 'Bahrain',
@@ -39,7 +39,7 @@ COUNTRY_CHOICES = [(name, name) for name in [
 # digits only rule fits Greece, but it would turn away a real UK postcode like
 # SW1A 1AA or a Canadian one like K1A 0B1. This keeps it to letters, digits,
 # spaces and hyphens, starting with a letter or a digit, which covers the
-# formats in use without pretending to know every country's rules.
+# formats in use without pretending to know every country's rules
 postcode_validator = RegexValidator(
     regex=r'^[A-Za-z0-9][A-Za-z0-9 -]{1,9}$',
     message='Enter a postcode using letters, numbers, spaces or hyphens.',
@@ -70,7 +70,7 @@ class ProductFilterForm(forms.Form):
     def __init__(self, *args, **kwargs):
         # The choices are rebuilt every time the form is created, so a brand
         # or color added through the backoffice shows up in the filter
-        # without a code change.
+        # without a code change
         super().__init__(*args, **kwargs)
         self.fields['brand'].choices = self.value_choices('brand')
         self.fields['color'].choices = self.value_choices('color')
@@ -78,7 +78,7 @@ class ProductFilterForm(forms.Form):
 
     def value_choices(self, field_name):
         # The dropdown options are read from the products themselves so the
-        # filter only ever offers values that exist in the catalogue.
+        # filter only ever offers values that exist in the catalogue
         values = (Product.objects
                   .exclude(**{field_name: ''})
                   .values_list(field_name, flat=True)
@@ -88,7 +88,7 @@ class ProductFilterForm(forms.Form):
 
 
 # save_address is opt in and checked by default, ticking it off copies the
-# shipping fields onto the shopper's Profile so next checkout can prefill them.
+# shipping fields onto the shopper's Profile so next checkout can prefill them
 class CheckoutForm(forms.Form):
     ship_full_name = forms.CharField(max_length=200, label='Full name')
     ship_address = forms.CharField(max_length=255, widget=forms.Textarea(attrs={'rows': 2}), label='Address')
@@ -99,21 +99,21 @@ class CheckoutForm(forms.Form):
 
 
 # The first place the 1 to 5 range is checked, so a bad rating is turned away
-# with a form error rather than reaching the model's own constraint.
+# with a form error rather than reaching the model's own constraint
 class RatingForm(forms.Form):
     stars = forms.IntegerField(min_value=1, max_value=5)
     comment = forms.CharField(required=False)
 
 
 # min_value=0 is intentional, setting the quantity to 0 in the cart is how a
-# line gets removed, the view treats that as a delete rather than an error.
+# line gets removed, the view treats that as a delete rather than an error
 class CartUpdateForm(forms.Form):
     quantity = forms.IntegerField(min_value=0, max_value=99)
 
 
 # These three ModelForms live in catalog rather than backoffice because
 # backoffice imports them directly for its product, category, and
-# subcategory CRUD screens.
+# subcategory CRUD screens
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product

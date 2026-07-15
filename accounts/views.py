@@ -11,7 +11,7 @@ from .models import Profile
 def _profile_for(user):
     # The role now lives in the user's groups, not on the profile, so a profile
     # only needs a row to exist. get_or_create covers accounts that were made
-    # without one.
+    # without one
     profile, created = Profile.objects.get_or_create(user=user)
     return profile
 

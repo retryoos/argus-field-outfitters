@@ -21,7 +21,7 @@ from .models import Category, Order, OrderItem, Product, Rating, RecentlyViewed,
 
 def index(request):
     # Just the newest four in stock products, the homepage is a teaser, not
-    # the full catalogue browse.
+    # the full catalogue browse
     return render(request, 'catalog/index.html', {
         'new_arrivals': Product.objects.filter(stock__gt=0).annotate(
             average_rating=Avg('ratings__stars')
@@ -34,14 +34,14 @@ def product_list(request):
     # The annotation puts each product's average star rating on the card
     # grid, one query for the whole page instead of one per card. annotate
     # groups the rows, which drops the model's own ordering, so the order is
-    # set again here or the pager could show the same product on two pages.
+    # set again here or the pager could show the same product on two pages
     products = Product.objects.annotate(average_rating=Avg('ratings__stars')).order_by('name')
     # The search box matches the product name or the brand. Q objects let
-    # the two checks combine with OR in a single query.
+    # the two checks combine with OR in a single query
     query = request.GET.get('q', '').strip()
     if query:
         products = products.filter(Q(name__icontains=query) | Q(brand__icontains=query))
-    # The filters narrow down whatever the search left, so both work together.
+    # The filters narrow down whatever the search left, so both work together
     form = ProductFilterForm(request.GET or None)
     if form.is_valid():
         data = form.cleaned_data
@@ -73,7 +73,7 @@ def product_list(request):
 
 # category_detail and subcategory_detail both reuse product_list.html rather
 # than having their own template, they just narrow the queryset and swap the
-# heading, so the same product grid markup covers all three browse pages.
+# heading, so the same product grid markup covers all three browse pages
 def category_detail(request, slug):
     category = get_object_or_404(Category, slug=slug)
     products = (Product.objects.filter(subcategory__category=category)
@@ -104,15 +104,15 @@ def subcategory_detail(request, slug):
 
 def product_detail(request, pk):
     # select_related fetches the subcategory and its category in the same query,
-    # the breadcrumb and the detail list both walk up to them.
+    # the breadcrumb and the detail list both walk up to them
     product = get_object_or_404(
         Product.objects.select_related('subcategory__category'), pk=pk
     )
-    # Remember the visit so the dashboard and the recommender can use it.
+    # Remember the visit so the dashboard and the recommender can use it
     if request.user.is_authenticated:
         RecentlyViewed.objects.update_or_create(user=request.user, product=product)
     # Related items come from the same subcategory. When that has fewer than
-    # four to offer, the wider category is used instead.
+    # four to offer, the wider category is used instead
     same_subcategory = Product.objects.filter(
         subcategory=product.subcategory, stock__gt=0
     ).exclude(pk=product.pk).order_by('-created_at')
@@ -140,7 +140,7 @@ def product_detail(request, pk):
 
 def cart_view(request):
     # The cart page itself is a normal full page load, only add, update, and
-    # remove below go through AJAX.
+    # remove below go through AJAX
     cart = Cart(request)
     return render(request, 'catalog/cart.html', {'cart': cart})
 
@@ -148,11 +148,11 @@ def cart_view(request):
 @require_POST
 def cart_add(request, pk):
     # Called by cart.js, the response is read as JSON, not followed as a
-    # redirect, so the page never reloads just to add one item.
+    # redirect, so the page never reloads just to add one item
     product = get_object_or_404(Product, pk=pk)
     cart = Cart(request)
     # The cart must never hold more units than the shop has, otherwise the
-    # shopper reaches checkout with an order that cannot be filled.
+    # shopper reaches checkout with an order that cannot be filled
     if cart.quantity_of(product) + 1 > product.stock:
         return JsonResponse({'error': f'Only {product.stock} left in stock.'}, status=400)
     cart.add(product)
@@ -170,7 +170,7 @@ def cart_update(request, pk):
         return JsonResponse({'error': f'Only {product.stock} left in stock.'}, status=400)
     cart.set_quantity(product, form.cleaned_data['quantity'])
     # Find the row again after the update so the response can carry the
-    # fresh line total, or tell the page the row was removed entirely.
+    # fresh line total, or tell the page the row was removed entirely
     line = next((item for item in cart if item['product'].pk == product.pk), None)
     return JsonResponse({
         'cart_count': len(cart),
@@ -190,7 +190,7 @@ def cart_remove(request, pk):
 
 def _checkout_initial(user):
     # Prefill the shipping form with whatever the profile already knows.
-    # hasattr covers accounts that never got a profile row.
+    # hasattr covers accounts that never got a profile row
     initial = {'ship_full_name': user.get_full_name()}
     if hasattr(user, 'profile'):
         profile = user.profile
@@ -204,7 +204,7 @@ def _checkout_initial(user):
 def _save_address(user, data):
     # Only runs when the shopper ticks "save this address". get_or_create
     # covers a brand new customer who has never visited their profile page,
-    # and so has no Profile row yet.
+    # and so has no Profile row yet
     profile, created = Profile.objects.get_or_create(user=user)
     profile.shipping_address = data['ship_address']
     profile.shipping_city = data['ship_city']
@@ -216,10 +216,13 @@ def _save_address(user, data):
 def _out_of_stock_rows(cart):
     # The catalogue can change while a cart sits in someone's session, so the
     # stock is checked again at checkout rather than trusting whatever was
-    # available when the item was first added.
+    # available when the item was first added
     return [row for row in cart if row['quantity'] > row['product'].stock]
 
 
+# An order is several writes, the Order row then one OrderItem per line, and a
+# half written order is worse than no order at all, so atomic makes the whole
+# lot succeed together or roll back together
 @transaction.atomic
 def _create_order(request, cart, data):
     order = Order.objects.create(
@@ -232,12 +235,12 @@ def _create_order(request, cart, data):
         total=cart.total_price(),
     )
     # The reference is built from the primary key so it is unique for free,
-    # padded to six digits so it reads like a real order number.
+    # padded to six digits so it reads like a real order number
     order.reference_number = f'AFO-{order.pk:06d}'
     order.save()
     for item in cart:
         # The price is copied onto the order line so old orders keep the
-        # price that was actually paid.
+        # price that was actually paid
         OrderItem.objects.create(
             order=order,
             product=item['product'],
@@ -251,20 +254,20 @@ def _create_order(request, cart, data):
 def _finalize_order(order):
     # Marking an order paid also takes the bought quantities out of stock. The
     # whole thing is one transaction so an order can never end up paid with its
-    # stock not taken, or the other way round.
+    # stock not taken, or the other way round
     order.status = Order.PAID
     order.paid_at = timezone.now()
     order.save()
     for item in order.items.select_related('product'):
         # F() does the subtraction in the database rather than reading the
         # stock into Python first, so two orders placed at the same moment
-        # cannot both write back the same figure and lose one of the sales.
+        # cannot both write back the same figure and lose one of the sales
         Product.objects.filter(pk=item.product.pk).update(stock=F('stock') - item.quantity)
 
 
 def _stripe_enabled():
     # Without Stripe keys the checkout skips the payment page and completes
-    # at once. That keeps local development simple.
+    # at once. That keeps local development simple
     return bool(settings.STRIPE_SECRET_KEY)
 
 
@@ -276,7 +279,7 @@ def _start_stripe_session(request, order):
             'price_data': {
                 'currency': 'usd',
                 'product_data': {'name': item.product.name},
-                # Stripe wants amounts in cents.
+                # Stripe wants amounts in cents
                 'unit_amount': int(item.unit_price * 100),
             },
             'quantity': item.quantity,
@@ -301,11 +304,11 @@ def _start_stripe_session(request, order):
 @login_required
 def checkout(request):
     cart = Cart(request)
-    # There is nothing to check out when the cart is empty.
+    # There is nothing to check out when the cart is empty
     if len(cart) == 0:
         return redirect('catalog:cart')
     # This is the check that actually counts, the cart page can be left open for
-    # a long time and the stock can drop in the meantime.
+    # a long time and the stock can drop in the meantime
     short = _out_of_stock_rows(cart)
     if short:
         for row in short:
@@ -339,7 +342,7 @@ def checkout(request):
 def checkout_success(request):
     # Stripe sends the shopper here after payment. The order is marked paid
     # only after Stripe confirms the session, and the status check stops a
-    # page refresh from processing the same order twice.
+    # page refresh from processing the same order twice
     session_id = request.GET.get('session_id')
     order = get_object_or_404(Order, stripe_session_id=session_id, user=request.user)
     if order.status != Order.PAID:
@@ -354,7 +357,7 @@ def checkout_success(request):
 @login_required
 def checkout_cancel(request):
     # Stripe sends the shopper here if they back out of its hosted payment
-    # page instead of finishing it.
+    # page instead of finishing it
     return redirect('catalog:cart')
 
 
@@ -365,12 +368,12 @@ def stripe_webhook(request):
     # and a browser is not something to rely on, they can close the tab the
     # moment Stripe takes the money. Stripe also sends the same news here,
     # server to server, and keeps retrying until it gets a 200, so this is what
-    # actually settles an order.
+    # actually settles an order
     #
     # csrf_exempt because Stripe is not a browser and has no token to send. The
     # signature below is what takes the place of that check, and it has to,
     # otherwise anyone who knew this url could post their own "payment
-    # succeeded" and be sent free gear.
+    # succeeded" and be sent free gear
     if not settings.STRIPE_WEBHOOK_SECRET:
         return HttpResponse('webhook not configured', status=503)
     try:
@@ -380,26 +383,26 @@ def stripe_webhook(request):
             secret=settings.STRIPE_WEBHOOK_SECRET,
         )
     except ValueError:
-        # The body was not JSON at all.
+        # The body was not JSON 
         return HttpResponse('bad payload', status=400)
     except stripe.error.SignatureVerificationError:
-        # Either not from Stripe, or tampered with on the way here.
+        # Either not from Stripe, or tampered with on the way 
         return HttpResponse('bad signature', status=400)
 
     if event['type'] == 'checkout.session.completed':
         # The library hands back its own Session object rather than a dict, so
-        # the fields are read with getattr, it has no get().
+        # the fields are read with getattr, it has no get()
         session = event['data']['object']
         order = Order.objects.filter(stripe_session_id=session['id']).first()
         # Only settle an order that is still pending. Stripe retries an event
         # until it is answered with a 200, and the success page may well have
-        # got there first, so this has to be safe to run more than once.
+        # got there first, so this has to be safe to run more than once
         if order and order.status != Order.PAID and getattr(session, 'payment_status', None) == 'paid':
             _finalize_order(order)
 
     # Anything else is answered with a 200 as well. Stripe only needs to know
     # the event arrived, and refusing the ones we do not act on would just make
-    # it retry them forever.
+    # it retry them forever
     return HttpResponse(status=200)
 
 
@@ -407,7 +410,7 @@ def stripe_webhook(request):
 def order_confirmation(request, pk):
     # user=request.user, not just pk, so a customer can't view another
     # shopper's order by guessing the URL. prefetch_related pulls the lines and
-    # their products in two queries rather than one per line.
+    # their products in two queries rather than one per line
     order = get_object_or_404(
         Order.objects.prefetch_related('items__product'), pk=pk, user=request.user
     )
@@ -421,7 +424,7 @@ def rate(request, pk):
     form = RatingForm(request.POST)
     if not form.is_valid():
         return JsonResponse({'error': 'invalid rating'}, status=400)
-    # Each user gets one rating per product. Rating again replaces the old one.
+    # Each user gets one rating per product. Rating again replaces the old one
     Rating.objects.update_or_create(
         user=request.user,
         product=product,
@@ -440,7 +443,7 @@ def rate(request, pk):
 @login_required
 def wishlist(request):
     # select_related fetches each item's product in the same query instead of
-    # one extra query per row.
+    # one extra query per row
     items = request.user.wishlist_items.select_related('product')
     return render(request, 'catalog/wishlist.html', {'items': items})
 
@@ -450,7 +453,7 @@ def wishlist(request):
 def wishlist_toggle(request, pk):
     # The same button adds and removes, which keeps the template simple.
     # cart.js reads in_wishlist to decide whether to swap the button's icon in
-    # place, or remove the whole card on the wishlist page itself.
+    # place, or remove the whole card on the wishlist page itself
     product = get_object_or_404(Product, pk=pk)
     item, created = WishlistItem.objects.get_or_create(user=request.user, product=product)
     if not created:

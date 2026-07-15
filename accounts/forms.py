@@ -28,7 +28,7 @@ class UserForm(forms.ModelForm):
 
 class ProfileForm(forms.ModelForm):
     # Overridden so the profile edit page offers the same country dropdown
-    # and postcode rule as checkout, instead of the model's plain text field.
+    # and postcode rule as checkout, instead of the model's plain text field
     shipping_country = forms.ChoiceField(choices=[('', 'Not set')] + COUNTRY_CHOICES, required=False)
     shipping_postcode = forms.CharField(max_length=10, required=False, validators=[postcode_validator])
 
@@ -39,7 +39,7 @@ class ProfileForm(forms.ModelForm):
 
 # The owner picks one of these three on the set role screen. Customer is the
 # no-group option, the other two match the Employee and Owner group names, and
-# the view turns the choice into group membership.
+# the view turns the choice into group membership
 class UserRoleForm(forms.Form):
     CUSTOMER = 'Customer'
     ROLE_CHOICES = [

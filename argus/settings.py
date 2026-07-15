@@ -15,10 +15,10 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# Build paths inside the project like this: BASE_DIR / 'subdir'
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Load environment variables from a .env file if one exists.
+# Load environment variables from a .env file if one exists
 load_dotenv(BASE_DIR / '.env')
 
 
@@ -30,12 +30,12 @@ load_dotenv(BASE_DIR / '.env')
 # below are read. This is a coursework site with no real money in it, so the
 # key stays here to keep the project runnable straight from a clone. It is a
 # freshly generated one rather than the django-insecure- key startproject
-# writes, which Django's own deployment check rejects.
+# writes, which Django's own deployment check rejects
 SECRET_KEY = '&2tw0et=djhki4yl9rno@1c$^4)zs$e%5imx1^vhph(3v62(^j'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # Defaults to False so that a missing or unreadable .env leaves the site in the
-# safe state rather than exposing debug pages, DEBUG=True is set in .env locally.
+# safe state rather than exposing debug pages, DEBUG=True is set in .env locally
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
@@ -138,7 +138,7 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Django 5 configures file storage through this dict rather than separate
-# settings, this is the standard shape for a project with no custom storage.
+# settings, this is the standard shape for a project with no custom storage
 STORAGES = {
     'default': {
         'BACKEND': 'django.core.files.storage.FileSystemStorage',
@@ -148,26 +148,26 @@ STORAGES = {
     },
 }
 
-# Uploaded files such as product images.
+# Uploaded files such as product images
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Crispy forms uses the Bootstrap 5 pack.
+# Crispy forms uses the Bootstrap 5 pack
 CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'
 CRISPY_TEMPLATE_PACK = 'bootstrap5'
 
-# Where login and logout send the user.
+# Where login and logout send the user
 LOGIN_REDIRECT_URL = 'accounts:dashboard'
 LOGOUT_REDIRECT_URL = 'catalog:index'
 
 # Stripe test mode keys are read from the environment and never live in the
-# repository.
+# repository
 STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY', '')
 STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY', '')
 # Stripe signs every webhook it sends with this, it comes from the endpoint's
 # own page in the Stripe dashboard. Without it the webhook refuses everything,
 # which is the right way round, an unverified caller must not be able to mark
-# an order paid.
+# an order paid
 STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET', '')
 
 # Default primary key field type
@@ -176,11 +176,11 @@ STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET', '')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-# Extra hardening that only applies in production, where DEBUG is off.
+# Extra hardening that only applies in production, where DEBUG is off
 if not DEBUG:
     # The host terminates https in front of the app, so this header tells
     # Django the request was already secure. The rest forces https and keeps
-    # cookies off plain http.
+    # cookies off plain http
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True

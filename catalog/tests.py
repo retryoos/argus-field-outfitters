@@ -1,6 +1,6 @@
 # Tests for the shop side, the cart, the stock rules, the checkout and the
 # recommender. These run against a throwaway database, so nothing here touches
-# the real products or orders.
+# the real products or orders
 from decimal import Decimal
 
 from django.contrib.auth.models import User
@@ -13,7 +13,7 @@ from .recommendations import recommendations_for_user
 
 
 class ShopTestCase(TestCase):
-    # Builds the same shape of data every test below starts from.
+    # Builds the same shape of data every test below starts from
     def setUp(self):
         self.category = Category.objects.create(name='Apparel', slug='apparel')
         self.subcategory = Subcategory.objects.create(
@@ -35,7 +35,7 @@ class ShopTestCase(TestCase):
 class CartTests(ShopTestCase):
     def test_guest_can_fill_a_cart(self):
         # The whole point of keeping the cart in the session is that no account
-        # is needed to start shopping.
+        # is needed to start shopping
         response = self.client.post(reverse('catalog:cart_add', args=[self.product.pk]))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()['cart_count'], 1)
@@ -59,7 +59,7 @@ class CartTests(ShopTestCase):
     def test_a_deleted_product_leaves_nothing_behind_in_the_cart(self):
         # A product can be taken out of the catalogue while it is still sitting
         # in someone's session. The count and the total have to agree that the
-        # cart is empty, otherwise an order goes through for nothing.
+        # cart is empty, otherwise an order goes through for nothing
         self.client.post(reverse('catalog:cart_add', args=[self.product.pk]))
         self.product.delete()
         response = self.client.get(reverse('catalog:cart'))
@@ -68,7 +68,7 @@ class CartTests(ShopTestCase):
 
     def test_browsing_does_not_start_a_session(self):
         # The navbar badge builds a Cart on every page, which should not hand a
-        # session to somebody who is only looking around.
+        # session to somebody who is only looking around
         self.client.get(reverse('catalog:index'))
         self.assertNotIn('cart', self.client.session)
 
@@ -76,7 +76,7 @@ class CartTests(ShopTestCase):
 # Blanking the Stripe key puts the checkout on the path it takes when no keys
 # are configured, where the order completes on the spot instead of handing off
 # to Stripe's page. That keeps these tests off the network and stops them
-# behaving differently depending on what is in someone's .env.
+# behaving differently depending on what is in someone's .env
 @override_settings(STRIPE_SECRET_KEY='')
 class CheckoutTests(ShopTestCase):
     def setUp(self):
@@ -106,7 +106,7 @@ class CheckoutTests(ShopTestCase):
 
     def test_checkout_refuses_when_the_stock_dropped_since_the_cart_was_filled(self):
         # The cart page can sit open for a long time, so the stock is checked
-        # again at checkout rather than trusting what was there earlier.
+        # again at checkout rather than trusting what was there earlier
         self.client.post(reverse('catalog:cart_add', args=[self.product.pk]))
         self.client.post(reverse('catalog:cart_update', args=[self.product.pk]), {'quantity': 4})
         self.product.stock = 1
@@ -119,7 +119,7 @@ class CheckoutTests(ShopTestCase):
         self.assertContains(response, 'only has 1 left')
 
     def test_an_order_keeps_the_price_that_was_paid(self):
-        # A later price change must not rewrite what an old order cost.
+        # A later price change must not rewrite what an old order cost
         self.client.post(reverse('catalog:cart_add', args=[self.product.pk]))
         self.client.post(reverse('catalog:checkout'), self.address)
         self.product.price = Decimal('999.00')
@@ -141,7 +141,7 @@ class CheckoutTests(ShopTestCase):
 @override_settings(STRIPE_WEBHOOK_SECRET='whsec_test_secret_for_the_tests')
 class StripeWebhookTests(ShopTestCase):
     # Stripe signs each webhook with the endpoint's secret. These build the same
-    # signature Stripe would, so the view can be tested without the network.
+    # signature Stripe would, so the view can be tested without the network
     def setUp(self):
         super().setUp()
         self.order = Order.objects.create(
@@ -171,7 +171,7 @@ class StripeWebhookTests(ShopTestCase):
 
     def completed_event(self, session_id='cs_test_123', payment_status='paid'):
         # The same shape Stripe posts, object: event and all, because its
-        # library reads that field before anything else.
+        # library reads that field before anything else
         return {
             'id': 'evt_test', 'object': 'event',
             'type': 'checkout.session.completed',
@@ -189,7 +189,7 @@ class StripeWebhookTests(ShopTestCase):
 
     def test_an_unsigned_caller_cannot_mark_an_order_paid(self):
         # This is the whole reason the signature is checked. Without it anyone
-        # who found the url could post this and be sent free gear.
+        # who found the url could post this and be sent free gear
         response = self.post_event(self.completed_event(), signature='t=1,v1=made-up')
         self.order.refresh_from_db()
         self.assertEqual(response.status_code, 400)
@@ -203,7 +203,7 @@ class StripeWebhookTests(ShopTestCase):
 
     def test_the_same_event_twice_only_takes_the_stock_once(self):
         # Stripe retries until it gets a 200, and the success page may have got
-        # there first, so this has to be safe to repeat.
+        # there first, so this has to be safe to repeat
         self.post_event(self.completed_event())
         self.post_event(self.completed_event())
         self.product.refresh_from_db()
@@ -222,7 +222,7 @@ class StripeWebhookTests(ShopTestCase):
         self.assertEqual(self.order.status, Order.PENDING)
 
     def test_an_event_we_do_not_act_on_still_gets_a_200(self):
-        # Anything other than a 200 makes Stripe retry it forever.
+        # Anything other than a 200 makes Stripe retry it forever
         response = self.post_event({
             'id': 'evt_x', 'object': 'event', 'type': 'payment_intent.created',
             'data': {'object': {'id': 'pi_x', 'object': 'payment_intent'}},
@@ -296,7 +296,7 @@ class RecommenderTests(ShopTestCase):
         self.assertNotIn(seen, suggestions)
 
     def test_someone_with_no_history_still_gets_something(self):
-        # The block on the dashboard should never be empty.
+        # The block on the dashboard should never be empty
         self.assertTrue(recommendations_for_user(self.user))
 
     def test_out_of_stock_items_are_never_suggested(self):
