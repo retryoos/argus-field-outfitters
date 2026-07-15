@@ -247,7 +247,7 @@ def _start_stripe_session(request, order):
     # build_absolute_uri produces full addresses with the domain, which
     # Stripe needs because it redirects from its own site. The braces in the
     # success url are literal text that Stripe fills in with the session id,
-    # not Python formatting.
+    # not Python formatting
     success_url = request.build_absolute_uri(reverse('catalog:checkout_success'))
     session = stripe.checkout.Session.create(
         mode='payment',
