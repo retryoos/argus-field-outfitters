@@ -123,7 +123,7 @@ product id in the script itself.
                 <div class="col-6 col-md-3">
                     <div class="card h-100">
                         {% if item.image %}
-                            <img src="{{ item.image.url }}" class="card-img-top" alt="{{ item.name }}">
+                            <img src="{{ item.image.url }}" class="card-img-top" alt="{{ item.name }}" loading="lazy">
                         {% endif %}
                         <div class="card-body">
                             <h3 class="h6 card-title"><a class="stretched-link text-decoration-none" href="{% url 'catalog:product_detail' item.pk %}">{{ item.name }}</a></h3>

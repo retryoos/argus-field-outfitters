@@ -19,7 +19,7 @@
             <div class="col-6 col-md-3">
                 <div class="card h-100">
                     {% if product.image %}
-                        <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                        <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" loading="lazy">
                     {% endif %}
                     <div class="card-body">
                         <h3 class="h6 card-title"><a class="stretched-link text-decoration-none" href="{% url 'catalog:product_detail' product.pk %}">{{ product.name }}</a></h3>

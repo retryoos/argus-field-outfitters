@@ -62,7 +62,8 @@ search page.
                 <div class="col-6 col-md-4">
                     <div class="card h-100">
                         {% if product.image %}
-                            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                            {# loading lazy leaves the photos further down the grid unfetched until they are scrolled to. #}
+                            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" loading="lazy">
                         {% endif %}
                         <div class="card-body">
                             <h2 class="h6 card-title"><a class="stretched-link text-decoration-none" href="{% url 'catalog:product_detail' product.pk %}">{{ product.name }}</a></h2>
