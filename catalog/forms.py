@@ -35,9 +35,14 @@ COUNTRY_CHOICES = [(name, name) for name in [
     'Uzbekistan', 'Venezuela', 'Vietnam', 'Yemen', 'Zambia', 'Zimbabwe',
 ]]
 
+# The country list above is worldwide, so the postcode rule has to be too. A
+# digits only rule fits Greece, but it would turn away a real UK postcode like
+# SW1A 1AA or a Canadian one like K1A 0B1. This keeps it to letters, digits,
+# spaces and hyphens, starting with a letter or a digit, which covers the
+# formats in use without pretending to know every country's rules.
 postcode_validator = RegexValidator(
-    regex=r'^\d{1,5}$',
-    message='Enter a postcode of up to 5 digits.',
+    regex=r'^[A-Za-z0-9][A-Za-z0-9 -]{1,9}$',
+    message='Enter a postcode using letters, numbers, spaces or hyphens.',
 )
 
 
@@ -88,13 +93,13 @@ class CheckoutForm(forms.Form):
     ship_full_name = forms.CharField(max_length=200, label='Full name')
     ship_address = forms.CharField(max_length=255, widget=forms.Textarea(attrs={'rows': 2}), label='Address')
     ship_city = forms.CharField(max_length=100, label='City')
-    ship_postcode = forms.CharField(max_length=5, label='Postcode', validators=[postcode_validator])
+    ship_postcode = forms.CharField(max_length=10, label='Postcode', validators=[postcode_validator])
     ship_country = forms.ChoiceField(choices=COUNTRY_CHOICES, label='Country')
     save_address = forms.BooleanField(required=False, initial=True, label='Save this address for next time')
 
 
-# This is where the 1 to 5 star range is actually enforced, the model field
-# itself has no bounds.
+# The first place the 1 to 5 range is checked, so a bad rating is turned away
+# with a form error rather than reaching the model's own constraint.
 class RatingForm(forms.Form):
     stars = forms.IntegerField(min_value=1, max_value=5)
     comment = forms.CharField(required=False)

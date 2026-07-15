@@ -11,7 +11,7 @@ class Profile(models.Model):
     # prefill every field on the checkout form
     shipping_address = models.TextField(blank=True)
     shipping_city = models.CharField(max_length=100, blank=True)
-    shipping_postcode = models.CharField(max_length=5, blank=True)
+    shipping_postcode = models.CharField(max_length=10, blank=True)
     shipping_country = models.CharField(max_length=100, blank=True)
     avatar = models.ImageField(upload_to='avatars/', blank=True)
 

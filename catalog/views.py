@@ -11,6 +11,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from accounts.models import Profile
+from argus.pagination import paginate, querystring_without_page
 
 from .cart import Cart
 from .forms import CartUpdateForm, CheckoutForm, ProductFilterForm, RatingForm
@@ -30,8 +31,10 @@ def index(request):
 
 def product_list(request):
     # The annotation puts each product's average star rating on the card
-    # grid, one query for the whole page instead of one per card.
-    products = Product.objects.annotate(average_rating=Avg('ratings__stars'))
+    # grid, one query for the whole page instead of one per card. annotate
+    # groups the rows, which drops the model's own ordering, so the order is
+    # set again here or the pager could show the same product on two pages.
+    products = Product.objects.annotate(average_rating=Avg('ratings__stars')).order_by('name')
     # The search box matches the product name or the brand. Q objects let
     # the two checks combine with OR in a single query.
     query = request.GET.get('q', '').strip()
@@ -55,9 +58,12 @@ def product_list(request):
             products = products.filter(subcategory=data['subcategory'])
         if data['in_stock']:
             products = products.filter(stock__gt=0)
+    page_obj = paginate(request, products)
     return render(request, 'catalog/product_list.html', {
         'heading': 'Search results' if query else 'All gear',
-        'products': products,
+        'products': page_obj,
+        'page_obj': page_obj,
+        'querystring': querystring_without_page(request),
         'categories': Category.objects.all(),
         'form': form,
         'query': query,
@@ -69,20 +75,28 @@ def product_list(request):
 # heading, so the same product grid markup covers all three browse pages.
 def category_detail(request, slug):
     category = get_object_or_404(Category, slug=slug)
-    products = Product.objects.filter(subcategory__category=category).annotate(average_rating=Avg('ratings__stars'))
+    products = (Product.objects.filter(subcategory__category=category)
+                .annotate(average_rating=Avg('ratings__stars')).order_by('name'))
+    page_obj = paginate(request, products)
     return render(request, 'catalog/product_list.html', {
         'heading': category.name,
-        'products': products,
+        'products': page_obj,
+        'page_obj': page_obj,
+        'querystring': querystring_without_page(request),
         'categories': Category.objects.all(),
     })
 
 
 def subcategory_detail(request, slug):
     subcategory = get_object_or_404(Subcategory, slug=slug)
-    products = Product.objects.filter(subcategory=subcategory).annotate(average_rating=Avg('ratings__stars'))
+    products = (Product.objects.filter(subcategory=subcategory)
+                .annotate(average_rating=Avg('ratings__stars')).order_by('name'))
+    page_obj = paginate(request, products)
     return render(request, 'catalog/product_list.html', {
         'heading': subcategory.name,
-        'products': products,
+        'products': page_obj,
+        'page_obj': page_obj,
+        'querystring': querystring_without_page(request),
         'categories': Category.objects.all(),
     })
 

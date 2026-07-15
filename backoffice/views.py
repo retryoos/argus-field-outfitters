@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from accounts.forms import UserRoleForm
 from accounts.roles import role_of, set_role
+from argus.pagination import TABLE_PAGE_SIZE, paginate, querystring_without_page
 from catalog.forms import CategoryForm, ProductForm, SubcategoryForm
 from catalog.models import Category, Order, Product, Subcategory
 
@@ -48,8 +49,11 @@ def product_list(request):
         products = products.filter(Q(name__icontains=query) | Q(brand__icontains=query))
     sort = request.GET.get('sort', 'name')
     products = products.order_by(PRODUCT_SORT_FIELDS.get(sort, 'name'))
+    page_obj = paginate(request, products, TABLE_PAGE_SIZE)
     return render(request, 'backoffice/product_list.html', {
-        'products': products,
+        'products': page_obj,
+        'page_obj': page_obj,
+        'querystring': querystring_without_page(request),
         'query': query,
         'sort': sort,
     })
@@ -228,8 +232,11 @@ def order_list(request):
         orders = orders.filter(Q(reference_number__icontains=query) | Q(user__username__icontains=query))
     sort = request.GET.get('sort', '-date')
     orders = orders.order_by(ORDER_SORT_FIELDS.get(sort, '-created_at'))
+    page_obj = paginate(request, orders, TABLE_PAGE_SIZE)
     return render(request, 'backoffice/order_list.html', {
-        'orders': orders,
+        'orders': page_obj,
+        'page_obj': page_obj,
+        'querystring': querystring_without_page(request),
         'query': query,
         'sort': sort,
     })

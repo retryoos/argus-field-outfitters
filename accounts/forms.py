@@ -30,7 +30,7 @@ class ProfileForm(forms.ModelForm):
     # Overridden so the profile edit page offers the same country dropdown
     # and postcode rule as checkout, instead of the model's plain text field.
     shipping_country = forms.ChoiceField(choices=[('', 'Not set')] + COUNTRY_CHOICES, required=False)
-    shipping_postcode = forms.CharField(max_length=5, required=False, validators=[postcode_validator])
+    shipping_postcode = forms.CharField(max_length=10, required=False, validators=[postcode_validator])
 
     class Meta:
         model = Profile
