@@ -16,7 +16,11 @@
                     <td>{{ row.account.username }}</td>
                     <td>{{ row.account.email }}</td>
                     <td>{{ row.role }}</td>
-                    <td><a href="{% url 'backoffice:user_role_edit' row.account.pk %}" class="btn btn-sm btn-outline-secondary">Set role</a></td>
+                    <td>
+                        {% if not row.account.is_superuser %}
+                            <a href="{% url 'backoffice:user_role_edit' row.account.pk %}" class="btn btn-sm btn-outline-secondary">Set role</a>
+                        {% endif %}
+                    </td>
                 </tr>
             {% endfor %}
         </tbody>

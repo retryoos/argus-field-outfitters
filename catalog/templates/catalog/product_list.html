@@ -23,6 +23,18 @@ search page.
         <div class="col-12 col-lg-3 mb-4">
             <form method="get" class="border rounded p-3">
                 <h2 class="h6 mb-3">Filter</h2>
+                {% comment %}
+                One bad value makes the whole form invalid, and the view then
+                applies no filters at all, so the reason has to be shown here or
+                the page would just quietly go back to listing everything.
+                {% endcomment %}
+                {% if form.errors %}
+                    <div class="alert alert-danger small py-2 mb-2">
+                        {% for field in form %}
+                            {% for error in field.errors %}<div>{{ field.label }}: {{ error }}</div>{% endfor %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
                 {% if query %}<input type="hidden" name="q" value="{{ query }}">{% endif %}
                 <div class="mb-2">
                     <label class="form-label mb-1">Price</label>

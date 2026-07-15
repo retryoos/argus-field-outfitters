@@ -1,6 +1,7 @@
 # The staff panels, makes sure everything here sits behind a role check, staff_required is
 # for the catalogue and the orders and owner_required for user management.
 from django.contrib.auth.models import User
+from django.core.exceptions import PermissionDenied
 from django.db.models import ProtectedError, Q
 from django.shortcuts import get_object_or_404, redirect, render
 
@@ -254,6 +255,10 @@ def user_list(request):
 @owner_required
 def user_role_edit(request, pk):
     account = get_object_or_404(User, pk=pk)
+    # The superuser is the root account and passes every permission check on its
+    # own, so it is not in a role group and there is nothing here to set.
+    if account.is_superuser:
+        raise PermissionDenied
     if request.method == 'POST':
         form = UserRoleForm(request.POST)
         if form.is_valid():
