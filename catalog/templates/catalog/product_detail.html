@@ -66,13 +66,17 @@
     </div>
 </div>
 
-{# data-rate-url is how ratings.js knows where to POST without hardcoding the
-   product id in the script itself. #}
+{% comment %}
+data-rate-url is how ratings.js knows where to POST without hardcoding the
+product id in the script itself.
+{% endcomment %}
 <section class="mt-5" id="rating-section" data-rate-url="{% url 'catalog:rate' product.pk %}">
     <h2 class="h5">Ratings</h2>
-    {# Same partial-fill star technique as _stars.html, but written out here
-       instead of included, since ratings.js needs the id="rating-stars-fill"
-       hook to redraw the bar after a new rating is submitted. #}
+    {% comment %}
+    Same partial-fill star technique as _stars.html, but written out here
+    instead of included, since ratings.js needs the id="rating-stars-fill" hook
+    to redraw the bar after a new rating is submitted.
+    {% endcomment %}
     <p class="mb-2 d-flex align-items-center gap-2">
         <span class="star-rating" role="img" aria-label="{{ average }} out of 5 stars">
             <span class="stars-empty"><i class="bi bi-star"></i><i class="bi bi-star"></i><i class="bi bi-star"></i><i class="bi bi-star"></i><i class="bi bi-star"></i></span>

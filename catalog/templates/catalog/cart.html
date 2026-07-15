@@ -18,9 +18,11 @@
                 </tr>
             </thead>
             <tbody>
-                {# js-cart-update, js-cart-remove, and js-line-total are hooks
-                   cart.js listens for, these forms never actually navigate,
-                   the page updates in place from the JSON response. #}
+                {% comment %}
+                js-cart-update, js-cart-remove, and js-line-total are hooks
+                cart.js listens for, these forms never actually navigate, the
+                page updates in place from the JSON response.
+                {% endcomment %}
                 {% for item in cart %}
                     <tr>
                         <td><a href="{% url 'catalog:product_detail' item.product.pk %}">{{ item.product.name }}</a></td>

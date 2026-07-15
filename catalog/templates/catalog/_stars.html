@@ -1,6 +1,8 @@
-{# Five empty stars sit behind five filled stars, the filled row is clipped
-   to a percentage width with widthratio so a 3.5 average shows as three and
-   a half stars instead of rounding up or down to a whole star. #}
+{% comment %}
+Five empty stars sit behind five filled stars, the filled row is clipped to a
+percentage width with widthratio so a 3.5 average shows as three and a half
+stars instead of rounding up or down to a whole star.
+{% endcomment %}
 {% if average %}
     <span class="star-rating" role="img" aria-label="{{ average }} out of 5 stars">
         <span class="stars-empty"><i class="bi bi-star"></i><i class="bi bi-star"></i><i class="bi bi-star"></i><i class="bi bi-star"></i><i class="bi bi-star"></i></span>

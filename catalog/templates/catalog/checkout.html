@@ -30,9 +30,11 @@
                     <span>Total</span>
                     <span>${{ cart.total_price }}</span>
                 </div>
-                {# stripe_enabled mirrors _stripe_enabled() in views.py, if no
-                   Stripe keys are set the order completes right away instead
-                   of redirecting to a payment page. #}
+                {% comment %}
+                stripe_enabled mirrors _stripe_enabled() in views.py, if no
+                Stripe keys are set the order completes right away instead of
+                redirecting to a payment page.
+                {% endcomment %}
                 {% if stripe_enabled %}
                     <p class="small text-muted mt-3 mb-0">Payment runs in Stripe test mode. Use card 4242 4242 4242 4242 with any future date and any CVC.</p>
                 {% endif %}

@@ -1,6 +1,6 @@
 from django.db import migrations
 
-# The three shopfront roles used to be a single text field on Profile. This
+# I had initially created a single text field on Profile that had the place of roles, thus this
 # migration moves them onto Django's own auth Groups. It creates the Employee
 # and Owner groups, gives each the right permission, and copies every existing
 # user's old role into the matching group before the role column is dropped, so
