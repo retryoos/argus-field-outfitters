@@ -17,13 +17,26 @@ $(function () {
         }
     }
 
+    // Reads the message the view sends back with a 400, which is how the
+    // stock limit is explained to the shopper.
+    function errorFrom(xhr) {
+        if (xhr.responseJSON && xhr.responseJSON.error) {
+            return xhr.responseJSON.error;
+        }
+        return 'Something went wrong, please try again.';
+    }
+
     // Add to cart, the button on a product page
     $('.js-cart-add').on('submit', function (e) {
         e.preventDefault();
         var form = $(this);
+        var message = form.find('.js-cart-message');
         $.post(form.attr('action'), form.serialize(), function (data) {
             updateCartBadge(data.cart_count);
-            form.find('.js-cart-message').text('Added to cart.');
+            message.removeClass('text-danger').addClass('text-success').text('Added to cart.');
+        }).fail(function (xhr) {
+            // The view refuses to put more in the cart than the shop has.
+            message.removeClass('text-success').addClass('text-danger').text(errorFrom(xhr));
         });
     });
 
@@ -46,6 +59,9 @@ $(function () {
             }
             $('#cart-total').text('$' + data.cart_total);
             updateCartBadge(data.cart_count);
+            row.find('.js-row-message').text('');
+        }).fail(function (xhr) {
+            row.find('.js-row-message').text(errorFrom(xhr));
         });
     });
 

@@ -8,12 +8,12 @@ the disk on every redeploy.
 
 Set these in a .env file in the project folder on the server. Never commit real values.
 
+- SECRET_KEY is the Django secret key. Generate a fresh one for the server with
+  `python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"`
+  and never reuse the development one.
 - DEBUG must be False in production.
 - ALLOWED_HOSTS lists your domain, for example yourusername.pythonanywhere.com.
 - STRIPE_SECRET_KEY and STRIPE_PUBLISHABLE_KEY hold your Stripe test mode keys.
-
-The Django secret key is not an environment variable, it is the value already in
-argus/settings.py, the same one Django generated when the project was created.
 
 ## Steps
 

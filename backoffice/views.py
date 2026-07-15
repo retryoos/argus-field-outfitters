@@ -236,7 +236,9 @@ def order_list(request):
 
 @staff_required
 def order_detail(request, pk):
-    order = get_object_or_404(Order, pk=pk)
+    # Same idea as the order list, the lines and their products come back in
+    # two queries instead of one per line.
+    order = get_object_or_404(Order.objects.prefetch_related('items__product'), pk=pk)
     return render(request, 'backoffice/order_detail.html', {'order': order})
 
 

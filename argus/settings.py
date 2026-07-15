@@ -26,10 +26,15 @@ load_dotenv(BASE_DIR / '.env')
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-m30qelr9ioiqxbfkpsx^m^(4mm3=-j6g6s_jnzahnhvj!n8zhz'
+# The real key is set in .env on the server and never committed, the same way
+# the Stripe keys are. The fallback below is only so a fresh clone still runs
+# locally, it is not the key the deployed site uses.
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-local-development-only')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+# Defaults to False so that a missing or unreadable .env leaves the site in the
+# safe state rather than exposing debug pages, DEBUG=True is set in .env locally.
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 

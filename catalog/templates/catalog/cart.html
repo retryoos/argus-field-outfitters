@@ -30,9 +30,10 @@
                         <td>
                             <form method="post" action="{% url 'catalog:cart_update' item.product.pk %}" class="js-cart-update d-flex gap-1">
                                 {% csrf_token %}
-                                <input type="number" name="quantity" value="{{ item.quantity }}" min="0" class="form-control form-control-sm" style="width: 5rem;">
+                                <input type="number" name="quantity" value="{{ item.quantity }}" min="0" max="{{ item.product.stock }}" class="form-control form-control-sm" style="width: 5rem;">
                                 <button type="submit" class="btn btn-sm btn-outline-secondary">Update</button>
                             </form>
+                            <div class="js-row-message small text-danger"></div>
                         </td>
                         <td class="js-line-total">${{ item.total }}</td>
                         <td>

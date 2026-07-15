@@ -1,7 +1,9 @@
 import stripe
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.models import Avg, Q
+from django.db import transaction
+from django.db.models import Avg, F, Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -86,7 +88,11 @@ def subcategory_detail(request, slug):
 
 
 def product_detail(request, pk):
-    product = get_object_or_404(Product, pk=pk)
+    # select_related fetches the subcategory and its category in the same query,
+    # the breadcrumb and the detail list both walk up to them.
+    product = get_object_or_404(
+        Product.objects.select_related('subcategory__category'), pk=pk
+    )
     # Remember the visit so the dashboard and the recommender can use it.
     if request.user.is_authenticated:
         RecentlyViewed.objects.update_or_create(user=request.user, product=product)
@@ -130,6 +136,10 @@ def cart_add(request, pk):
     # redirect, so the page never reloads just to add one item.
     product = get_object_or_404(Product, pk=pk)
     cart = Cart(request)
+    # The cart must never hold more units than the shop has, otherwise the
+    # shopper reaches checkout with an order that cannot be filled.
+    if cart.quantity_of(product) + 1 > product.stock:
+        return JsonResponse({'error': f'Only {product.stock} left in stock.'}, status=400)
     cart.add(product)
     return JsonResponse({'cart_count': len(cart), 'product_name': product.name})
 
@@ -141,6 +151,8 @@ def cart_update(request, pk):
     form = CartUpdateForm(request.POST)
     if not form.is_valid():
         return JsonResponse({'error': 'invalid quantity'}, status=400)
+    if form.cleaned_data['quantity'] > product.stock:
+        return JsonResponse({'error': f'Only {product.stock} left in stock.'}, status=400)
     cart.set_quantity(product, form.cleaned_data['quantity'])
     # Find the row again after the update so the response can carry the
     # fresh line total, or tell the page the row was removed entirely.
@@ -186,6 +198,14 @@ def _save_address(user, data):
     profile.save()
 
 
+def _out_of_stock_rows(cart):
+    # The catalogue can change while a cart sits in someone's session, so the
+    # stock is checked again at checkout rather than trusting whatever was
+    # available when the item was first added.
+    return [row for row in cart if row['quantity'] > row['product'].stock]
+
+
+@transaction.atomic
 def _create_order(request, cart, data):
     order = Order.objects.create(
         user=request.user,
@@ -212,16 +232,19 @@ def _create_order(request, cart, data):
     return order
 
 
+@transaction.atomic
 def _finalize_order(order):
-    # Marking an order paid also takes the bought quantities out of stock.
+    # Marking an order paid also takes the bought quantities out of stock. The
+    # whole thing is one transaction so an order can never end up paid with its
+    # stock not taken, or the other way round.
     order.status = Order.PAID
     order.paid_at = timezone.now()
     order.save()
-    for item in order.items.all():
-        product = item.product
-        # max keeps stock from going below zero.
-        product.stock = max(product.stock - item.quantity, 0)
-        product.save()
+    for item in order.items.select_related('product'):
+        # F() does the subtraction in the database rather than reading the
+        # stock into Python first, so two orders placed at the same moment
+        # cannot both write back the same figure and lose one of the sales.
+        Product.objects.filter(pk=item.product.pk).update(stock=F('stock') - item.quantity)
 
 
 def _stripe_enabled():
@@ -265,6 +288,17 @@ def checkout(request):
     cart = Cart(request)
     # There is nothing to check out when the cart is empty.
     if len(cart) == 0:
+        return redirect('catalog:cart')
+    # This is the check that actually counts, the cart page can be left open for
+    # a long time and the stock can drop in the meantime.
+    short = _out_of_stock_rows(cart)
+    if short:
+        for row in short:
+            messages.error(
+                request,
+                f"{row['product'].name} only has {row['product'].stock} left, "
+                f"please lower the quantity before checking out."
+            )
         return redirect('catalog:cart')
     if request.method == 'POST':
         form = CheckoutForm(request.POST)
@@ -312,8 +346,11 @@ def checkout_cancel(request):
 @login_required
 def order_confirmation(request, pk):
     # user=request.user, not just pk, so a customer can't view another
-    # shopper's order by guessing the URL.
-    order = get_object_or_404(Order, pk=pk, user=request.user)
+    # shopper's order by guessing the URL. prefetch_related pulls the lines and
+    # their products in two queries rather than one per line.
+    order = get_object_or_404(
+        Order.objects.prefetch_related('items__product'), pk=pk, user=request.user
+    )
     return render(request, 'catalog/order_confirmation.html', {'order': order})
 
 
@@ -352,8 +389,8 @@ def wishlist(request):
 @require_POST
 def wishlist_toggle(request, pk):
     # The same button adds and removes, which keeps the template simple.
-    # wishlist.js reads in_wishlist to decide whether to swap the button's
-    # icon in place, or remove the whole card on the wishlist page itself.
+    # cart.js reads in_wishlist to decide whether to swap the button's icon in
+    # place, or remove the whole card on the wishlist page itself.
     product = get_object_or_404(Product, pk=pk)
     item, created = WishlistItem.objects.get_or_create(user=request.user, product=product)
     if not created:
