@@ -138,6 +138,105 @@ class CheckoutTests(ShopTestCase):
         self.assertEqual(response.status_code, 404)
 
 
+@override_settings(STRIPE_WEBHOOK_SECRET='whsec_test_secret_for_the_tests')
+class StripeWebhookTests(ShopTestCase):
+    # Stripe signs each webhook with the endpoint's secret. These build the same
+    # signature Stripe would, so the view can be tested without the network.
+    def setUp(self):
+        super().setUp()
+        self.order = Order.objects.create(
+            user=self.user, ship_full_name='Test', ship_address='Street 1',
+            ship_city='Athens', ship_postcode='14234', ship_country='Greece',
+            total=Decimal('89.99'), stripe_session_id='cs_test_123',
+        )
+        self.order.items.create(product=self.product, quantity=2, unit_price=self.product.price)
+
+    def post_event(self, payload, signature=None):
+        import hashlib
+        import hmac
+        import json
+        import time
+
+        body = json.dumps(payload)
+        if signature is None:
+            timestamp = int(time.time())
+            secret = 'whsec_test_secret_for_the_tests'
+            signed = f'{timestamp}.{body}'.encode()
+            digest = hmac.new(secret.encode(), signed, hashlib.sha256).hexdigest()
+            signature = f't={timestamp},v1={digest}'
+        return self.client.post(
+            reverse('catalog:stripe_webhook'), data=body,
+            content_type='application/json', HTTP_STRIPE_SIGNATURE=signature,
+        )
+
+    def completed_event(self, session_id='cs_test_123', payment_status='paid'):
+        # The same shape Stripe posts, object: event and all, because its
+        # library reads that field before anything else.
+        return {
+            'id': 'evt_test', 'object': 'event',
+            'type': 'checkout.session.completed',
+            'data': {'object': {'id': session_id, 'object': 'checkout.session',
+                                'payment_status': payment_status}},
+        }
+
+    def test_a_signed_event_settles_the_order_and_takes_the_stock(self):
+        response = self.post_event(self.completed_event())
+        self.order.refresh_from_db()
+        self.product.refresh_from_db()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.order.status, Order.PAID)
+        self.assertEqual(self.product.stock, 3)
+
+    def test_an_unsigned_caller_cannot_mark_an_order_paid(self):
+        # This is the whole reason the signature is checked. Without it anyone
+        # who found the url could post this and be sent free gear.
+        response = self.post_event(self.completed_event(), signature='t=1,v1=made-up')
+        self.order.refresh_from_db()
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(self.order.status, Order.PENDING)
+
+    def test_a_missing_signature_is_refused(self):
+        response = self.client.post(
+            reverse('catalog:stripe_webhook'), data='{}', content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_the_same_event_twice_only_takes_the_stock_once(self):
+        # Stripe retries until it gets a 200, and the success page may have got
+        # there first, so this has to be safe to repeat.
+        self.post_event(self.completed_event())
+        self.post_event(self.completed_event())
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.stock, 3)
+
+    def test_an_unpaid_session_settles_nothing(self):
+        response = self.post_event(self.completed_event(payment_status='unpaid'))
+        self.order.refresh_from_db()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.order.status, Order.PENDING)
+
+    def test_an_event_for_an_unknown_session_is_shrugged_off(self):
+        response = self.post_event(self.completed_event(session_id='cs_not_ours'))
+        self.order.refresh_from_db()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.order.status, Order.PENDING)
+
+    def test_an_event_we_do_not_act_on_still_gets_a_200(self):
+        # Anything other than a 200 makes Stripe retry it forever.
+        response = self.post_event({
+            'id': 'evt_x', 'object': 'event', 'type': 'payment_intent.created',
+            'data': {'object': {'id': 'pi_x', 'object': 'payment_intent'}},
+        })
+        self.assertEqual(response.status_code, 200)
+
+    @override_settings(STRIPE_WEBHOOK_SECRET='')
+    def test_with_no_secret_configured_nothing_is_accepted(self):
+        response = self.post_event(self.completed_event())
+        self.order.refresh_from_db()
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(self.order.status, Order.PENDING)
+
+
 class RatingTests(ShopTestCase):
     def test_the_database_refuses_a_rating_outside_one_to_five(self):
         for bad in (0, 6, 99):

@@ -5,6 +5,7 @@ The diagram below renders on GitHub.
 ```mermaid
 erDiagram
     User ||--|| Profile : has
+    User }o--o{ Group : "belongs to"
     User ||--o{ Order : places
     User ||--o{ Rating : writes
     User ||--o{ WishlistItem : saves
@@ -17,11 +18,16 @@ erDiagram
     Product ||--o{ OrderItem : listed_in
     Order ||--o{ OrderItem : contains
 
+    Group {
+        string name
+    }
     Profile {
         int user_id
-        string role
         string phone
         text shipping_address
+        string shipping_city
+        string shipping_postcode
+        string shipping_country
         image avatar
     }
     Category {
@@ -75,3 +81,7 @@ erDiagram
 
 The cart is not a table. It lives in the session so a guest can use it. At checkout the
 session cart becomes an Order with its OrderItems.
+
+Roles are not a field either. Employee and Owner are rows in Django's own Group table, and
+each one carries the permission that opens the backoffice, so a user's role is which group
+they are in. A customer is in neither.

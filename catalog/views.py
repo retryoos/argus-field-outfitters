@@ -4,10 +4,11 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Avg, F, Q
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
 from accounts.models import Profile
@@ -355,6 +356,51 @@ def checkout_cancel(request):
     # Stripe sends the shopper here if they back out of its hosted payment
     # page instead of finishing it.
     return redirect('catalog:cart')
+
+
+@csrf_exempt
+@require_POST
+def stripe_webhook(request):
+    # The success page above only runs if the shopper comes back to the site,
+    # and a browser is not something to rely on, they can close the tab the
+    # moment Stripe takes the money. Stripe also sends the same news here,
+    # server to server, and keeps retrying until it gets a 200, so this is what
+    # actually settles an order.
+    #
+    # csrf_exempt because Stripe is not a browser and has no token to send. The
+    # signature below is what takes the place of that check, and it has to,
+    # otherwise anyone who knew this url could post their own "payment
+    # succeeded" and be sent free gear.
+    if not settings.STRIPE_WEBHOOK_SECRET:
+        return HttpResponse('webhook not configured', status=503)
+    try:
+        event = stripe.Webhook.construct_event(
+            payload=request.body,
+            sig_header=request.META.get('HTTP_STRIPE_SIGNATURE', ''),
+            secret=settings.STRIPE_WEBHOOK_SECRET,
+        )
+    except ValueError:
+        # The body was not JSON at all.
+        return HttpResponse('bad payload', status=400)
+    except stripe.error.SignatureVerificationError:
+        # Either not from Stripe, or tampered with on the way here.
+        return HttpResponse('bad signature', status=400)
+
+    if event['type'] == 'checkout.session.completed':
+        # The library hands back its own Session object rather than a dict, so
+        # the fields are read with getattr, it has no get().
+        session = event['data']['object']
+        order = Order.objects.filter(stripe_session_id=session['id']).first()
+        # Only settle an order that is still pending. Stripe retries an event
+        # until it is answered with a 200, and the success page may well have
+        # got there first, so this has to be safe to run more than once.
+        if order and order.status != Order.PAID and getattr(session, 'payment_status', None) == 'paid':
+            _finalize_order(order)
+
+    # Anything else is answered with a 200 as well. Stripe only needs to know
+    # the event arrived, and refusing the ones we do not act on would just make
+    # it retry them forever.
+    return HttpResponse(status=200)
 
 
 @login_required

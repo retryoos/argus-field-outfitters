@@ -26,10 +26,12 @@ load_dotenv(BASE_DIR / '.env')
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# The real key is set in .env on the server and never committed, the same way
-# the Stripe keys are. The fallback below is only so a fresh clone still runs
-# locally, it is not the key the deployed site uses.
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-local-development-only')
+# A real shop would read this from the environment the way the Stripe keys
+# below are read. This is a coursework site with no real money in it, so the
+# key stays here to keep the project runnable straight from a clone. It is a
+# freshly generated one rather than the django-insecure- key startproject
+# writes, which Django's own deployment check rejects.
+SECRET_KEY = '&2tw0et=djhki4yl9rno@1c$^4)zs$e%5imx1^vhph(3v62(^j'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # Defaults to False so that a missing or unreadable .env leaves the site in the
@@ -162,6 +164,11 @@ LOGOUT_REDIRECT_URL = 'catalog:index'
 # repository.
 STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY', '')
 STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY', '')
+# Stripe signs every webhook it sends with this, it comes from the endpoint's
+# own page in the Stripe dashboard. Without it the webhook refuses everything,
+# which is the right way round, an unverified caller must not be able to mark
+# an order paid.
+STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET', '')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

@@ -43,8 +43,16 @@ Python, Django, SQLite, Bootstrap 5, jQuery, django-crispy-forms, and Stripe in 
 
 Then open the local address that the server prints, usually http://127.0.0.1:8000.
 
-Put your Stripe test keys in the .env file so checkout works. The .env file is ignored by
-git and is never committed.
+Fill in the .env file before running. It holds the secret key, DEBUG, and the Stripe test
+keys, and it is ignored by git so it is never committed. Left without Stripe keys the
+checkout skips the payment page and completes right away, which is handy while developing.
+
+## Tests
+
+    python manage.py test
+
+They cover the cart and its stock rules, checkout, ratings, search and filters, the
+recommender, registration, and every role check.
 
 ## Deployment
 
@@ -53,7 +61,9 @@ for the steps.
 
 ## Project layout
 
-argus holds the settings and the root urls. catalog, accounts, and backoffice are the
-apps. Shared templates and the error pages live in the templates folder. Shared static
-files live in the static folder. Uploaded images live in the media folder. The ERD and the
+argus holds the settings, the root urls and the paging helpers both apps share. catalog,
+accounts, and backoffice are the apps, and anything belonging to one of them lives inside
+it, so catalog's own javascript sits in catalog/static/catalog. Only genuinely site wide
+files sit at the top level, the base template and the error pages in templates, and the
+site stylesheet in static. Uploaded images live in the media folder, and the ERD and the
 sitemap are in the docs folder.
