@@ -3,6 +3,23 @@
 Argus Field Outfitters is an online store for tactical and outdoor gear. It is my final
 project for ITC 4214 Internet Programming. The site is built with Django and Bootstrap.
 
+## Links
+
+- Live site: https://retryoos.pythonanywhere.com/
+- GitHub: https://github.com/retryoos/argus-field-outfitters
+- Demo video: (to be added)
+
+## Demo accounts
+
+Sign in at https://retryoos.pythonanywhere.com/accounts/login/ to try each role. They all
+share the same password, `ArgusDemo2026`.
+
+| Role     | Username   | Password      |
+|----------|------------|---------------|
+| Owner    | owner1     | ArgusDemo2026 |
+| Employee | employee1  | ArgusDemo2026 |
+| Customer | customer1  | ArgusDemo2026 |
+
 ## What it does
 
 - Browse a catalogue of gear by category and sub category.
