@@ -7,18 +7,19 @@ project for ITC 4214 Internet Programming. The site is built with Django and Boo
 
 - Live site: https://retryoos.pythonanywhere.com/
 - GitHub: https://github.com/retryoos/argus-field-outfitters
-- Demo video: (to be added)
+- Demo video: https://youtu.be/XKwkWK3jzGY
 
 ## Demo accounts
 
-Sign in at https://retryoos.pythonanywhere.com/accounts/login/ to try each role. They all
-share the same password, `ArgusDemo2026`.
+Sign in at https://retryoos.pythonanywhere.com/accounts/login/ to try each role. The
+superuser also has the Django admin at https://retryoos.pythonanywhere.com/admin/.
 
-| Role     | Username   | Password      |
-|----------|------------|---------------|
-| Owner    | owner1     | ArgusDemo2026 |
-| Employee | employee1  | ArgusDemo2026 |
-| Customer | customer1  | ArgusDemo2026 |
+| Role      | Username  | Password      |
+|-----------|-----------|---------------|
+| Superuser | retryoos  | retryoos      |
+| Owner     | owner1    | ArgusDemo2026 |
+| Employee  | employee1 | ArgusDemo2026 |
+| Customer  | customer1 | ArgusDemo2026 |
 
 ## What it does
 
